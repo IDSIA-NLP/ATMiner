@@ -10,7 +10,7 @@ data_oger/
 *.pickle
 *.pkl
 *None.tsv
-
+**/.DS_Store
 
 
 # -------- GITHUB PYTHON GITIGNORE -----------
