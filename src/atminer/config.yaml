@@ -1,0 +1,16 @@
+input:
+  path: /.../.../
+  file: ...
+  format:  # bioc_json
+
+output:
+  path: /.../.../
+  file: ...
+  format: # bioc_json
+
+nlp:
+  type: spacy
+  model: en_core_web_sm
+
+context:
+  size: 5
