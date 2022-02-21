@@ -6,6 +6,7 @@ data
 # Ignore all data folders
 data/
 data_oger/
+logs/
 
 *.pickle
 *.pkl

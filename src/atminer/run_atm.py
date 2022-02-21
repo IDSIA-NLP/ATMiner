@@ -40,10 +40,11 @@ def main(logger):
     logger.info(f'VERY IMPORTANT LOG NOTE')
     logger.info(_config.get("input_path"))
 
-    miner = ATMiner(
-        logger, 
-        config)
+    miner = ATMiner( 
+        _config(), 
+        logger)
 
+    miner.run()
 
 
 
@@ -54,7 +55,7 @@ def main(logger):
 if __name__ == '__main__':
 
     # Setup logger
-    logger.add("../../logs/dataset_builder.log", rotation="5 MB")
+    logger.add("../../logs/dataset_builder.log", rotation="1 MB")
     logger.info(f'Start ...')
 
    # Run main

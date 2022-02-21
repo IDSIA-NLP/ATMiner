@@ -1,16 +1,28 @@
 input:
-  path: /.../.../
-  file: ...
-  format:  # bioc_json
+  path: ../../data/tmp/input/
+  file: PMC3082960
+  format: txt # bioc_json, txt
 
 output:
-  path: /.../.../
-  file: ...
+  path: ../../data/tmp/output/
+  file: PMC3082960.json
   format: # bioc_json
+
+tmp:
+  path: ../../data/tmp/
+  oger_input: oger_input/ 
+  oger_output: oger_input/ 
+
+ner:
+  model: oger # oger
+
+rel_ext:
+  model: luke # luke
 
 nlp:
   type: spacy
   model: en_core_web_sm
 
 context:
+  mode: single # single, multiple 
   size: 5
