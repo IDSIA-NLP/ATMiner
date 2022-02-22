@@ -5,8 +5,8 @@ input:
 
 output:
   path: ../../data/tmp/output/
-  file: PMC3082960.json
-  format: # bioc_json
+  file: PMC3082960
+  format: bioc_json # bioc_json
 
 tmp:
   path: ../../data/tmp/
@@ -25,4 +25,4 @@ nlp:
 
 context:
   mode: single # single, multiple 
-  size: 5
+  size: null
