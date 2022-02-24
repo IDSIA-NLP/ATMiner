@@ -10,8 +10,9 @@ Month Year
 import subprocess
 import json 
 import os
-from data_converter import DataConverter
+from transformers import LukeTokenizer, LukeModel, LukeForEntityPairClassification
 
+from data_converter import DataConverter
 # --------------------------------------------------------------------------------------------
 
 # Use OGEr as the basemodel for the EntityRecognizer
@@ -52,45 +53,74 @@ class RelationExtractor(object):
 
         self.data_converter = DataConverter()
 
-        self.data = None # luke data format
+        self.output_format = None
 
 
-    def _predict_with_luke(luke_data):
+    def _create_bioc_relation(self, rel_id, head_role, head_id, tail_role, tail_id, rel_type, context_start_char, context_end_char):
+        relation = dict()
+        relation["id"] = rel_id
+        relation["node"] = [{
+                "role": head_role, 
+                "refid": head_id, 
+            },
+            {
+                "role": tail_role, 
+                "refid": tail_id, 
+        }]
+        relation["infons"] = {
+            "type": rel_type,
+            "context_start_char":context_start_char,
+            "context_end_char":context_end_char,
+        }
+        return relation
 
+    def _predict_with_luke(self, luke_data):
+
+        model = LukeForEntityPairClassification.from_pretrained("studio-ousia/luke-large-finetuned-tacred")
+        tokenizer = LukeTokenizer.from_pretrained("studio-ousia/luke-large-finetuned-tacred")
+
+        relations = dict()
         for doc in luke_data:
-            for relation_dict in doc['relations']:
+            for rel_idx, relation_dict in enumerate(doc['relations']):
 
-                pred_rel = ... # .... Code that makes the prediction
+                entity_spans = [ 
+                    tuple(relation_dict["head"]),
+                    tuple(relation_dict["tail"])
+                ]
+                inputs = tokenizer(relation_dict["text"], entity_spans=entity_spans, return_tensors="pt")
+                outputs = model(**inputs)
+                logits = outputs.logits
+                predicted_class_idx = int(logits[0].argmax())
+                pred_rel = model.config.id2label[predicted_class_idx]
+                
+                if self.output_format == 'bioc_json':
+                    formatted_rel = self._create_bioc_relation(
+                        rel_idx, 
+                        relation_dict["head_type"], 
+                        relation_dict["head_id"], 
+                        relation_dict["tail_type"], 
+                        relation_dict["tail_id"], 
+                        pred_rel, 
+                        relation_dict["context_start_char"], 
+                        relation_dict["context_end_char"])
+                else:
+                    self.logger.error(f"Output format {self.output_format} not supported.")
+                    raise ValueError("Output format not supported.")
 
-                #? HOW A PREDICTED RELATION SHOULD LOOK LIKE
-                #? {
-                #?     "id": "0",
-                #?     "node": [
-                #?         {
-                #?             "role": "Arthropod",
-                #?             "refid": "0"
-                #?         },
-                #?         {
-                #?             "role": "Trait",
-                #?             "refid": "3"
-                #?         }
-                #?     ],
-                #?     "infons": {
-                #?         "type": "hasTrait",
-                #?         "context_start_char": 0,
-                #?         "context_end_char": 533,
-                #?     }
-                #? },
+                relations[doc["id"]] = formatted_rel
 
+        return relations
 
-    def predict(self, data, input_format='bioc_json'):
+    def predict(self, data, input_format='bioc_json', output_format='bioc_json'):
         # predict the relation based given a text, the entity offsets and the entity labels
         # return the relation type
+        self.output_format = output_format
+
         if self.model_name == "luke":
             if input_format == 'bioc_json':
-                luke_data = self.data_converter.bioc_to_luke(self.data)
+                luke_data = self.data_converter.bioc_to_luke(data)
 
-                # pred_relations = self._predict_with_luke(luke_data)
+                pred_relations = self._predict_with_luke(luke_data)
 
             else:
                 self.logger.error(f"Input format {input_format} not supported.")
@@ -100,6 +130,7 @@ class RelationExtractor(object):
             self.logger.error(f"Relation extraction {self.model_name} model not supported.")
             raise ValueError("Relation extraction not supported.")
 
+        return pred_relations
 
 # --------------------------------------------------------------------------------------------
 
@@ -141,6 +172,10 @@ class ATMiner(object):
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         return data
+
+    def _write_bioc_json_file(self, file_path, json_data):
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(json_data, f, indent=4, sort_keys=True)
 
 
     def _create_ner_input(self):
@@ -200,22 +235,28 @@ class ATMiner(object):
         self._create_ner_input()
         self.ent_recognizer.predict()
         self._load_ner_output()
-        pass
-
-
-    def split(self, strategy=None):
-        # Use a strategy/model to split a text into sentences of context windows 
-        pass
-
+        
 
     def relation_extraction(self):
         # Extract the relation 
-        pass
+        # Both the input_format and output_format is the main output_format
+        pred_relations = self.rel_extractor.predict(self.data, input_format=self.config["output"]["format"], output_format=self.config["output"]["format"])
+        if self.config['output']['format'] == 'bioc_json':
+            for doc in self.data["documents"]:
+                doc["relations"] = pred_relations[doc["id"]]
+        else:
+            self.logger.error("Output format not supported.")
+            raise ValueError("Output format not supported.")
 
 
     def write(self):
         # Write the results to an annoted file or produce the database outputs
-        pass 
+        if self.config['output']['format'] == 'bioc_json':
+            out_file = self.config['output']['path'] + self.config['output']['file'] + ".bioc.json"
+            self._write_bioc_json_file(out_file, self.data)
+        else:
+            self.logger.error("Output format not supported.")
+            raise ValueError("Output format not supported.")
 
 
     def run(self):
@@ -226,7 +267,7 @@ class ATMiner(object):
         self.ner()
 
         # Run the relation extraction
-        # self.relation_extraction()      
+        self.relation_extraction()      
         
         # Write the output 
-        # self.write()     
+        self.write()     

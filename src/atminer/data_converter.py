@@ -8,6 +8,7 @@ Month Year
 """
 
 import itertools
+from multiprocessing import parent_process
 import spacy
 
 class DataConverter():
@@ -52,10 +53,10 @@ class DataConverter():
         return [list_obj[i:i+n] for i in range(len(list_obj)-n+1)]
 
 
-    def _get_luke_relation(self, relation_type, sentence, head_start, head_end, tail_start, tail_end, 
+    def _get_luke_relation(self, relation_type, text, head_start, head_end, tail_start, tail_end, 
      head_type, head_id, tail_type, tail_id, context_start_char, context_end_char):
         relation = dict()
-        relation["sentence"] = sentence                  
+        relation["text"] = text                  
         relation['head'] = [head_start, head_end]
         relation['tail'] = [tail_start, tail_end]
         relation['relation'] = relation_type
@@ -170,3 +171,12 @@ class DataConverter():
         #* <<<<<<<<<<<<<<< TEST 
 
         return out_data  
+
+    def bioc_to_tsv(self):
+        pass
+    
+    def bioc_to_txt(self):
+        pass
+    
+    def xml_to_txt(self):
+        pass

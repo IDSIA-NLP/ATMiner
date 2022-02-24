@@ -55,7 +55,7 @@ def main(logger):
 if __name__ == '__main__':
 
     # Setup logger
-    logger.add("../../logs/dataset_builder.log", rotation="1 MB")
+    logger.add("../../logs/run_atm.log", rotation="1 MB")
     logger.info(f'Start ...')
 
    # Run main
