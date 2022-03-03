@@ -1,0 +1,4 @@
+spacy==3.1.1
+OGER @ git+https://github.com/OntoGene/OGER.git@f23cf9bec70ba51f85605f26f3de2df72f7c4d5a
+transformers==2.1.0
+loguru==0.5.3
