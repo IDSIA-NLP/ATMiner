@@ -23,6 +23,15 @@ class EntityRecognizer(object):
         
     
     def predict(self):
+        """ Create the NER prediction.
+
+        Raises:
+            ValueError: if NER model is not supported.
+
+        Returns:
+            None: no return NER output is stored in the ./data/tmp/oger_output, as of now
+        """
+
         # predict the entities based given a text
         # return the entity offsets, lables and ids
         if self.model_name == "oger":
@@ -112,6 +121,21 @@ class RelationExtractor(object):
         return relations
 
     def predict(self, data, input_format='bioc_json', output_format='bioc_json'):
+        """Create the relation predictions.
+
+        Args:
+            data (dict): the input data for the rel extraction model
+            input_format (str, optional): input format. Defaults to 'bioc_json'.
+            output_format (str, optional): output format. Defaults to 'bioc_json'.
+
+        Raises:
+            ValueError: if relation extraction model is not supported
+            ValueError: if input format is not supported
+
+        Returns:
+            dict: dictionary formatted according to the output format
+        """
+
         # predict the relation based given a text, the entity offsets and the entity labels
         # return the relation type
         self.output_format = output_format
@@ -217,6 +241,12 @@ class ATMiner(object):
 
 
     def load(self):
+        """Load the input files for the ATMiner predition pipeline
+
+        Raises:
+            ValueError: if the input format is not supported.
+        """
+
         # Load a plain text or XML file
         if self.config['input']['format'] == 'txt':
             in_file = self.config['input']['path'] + self.config['input']['file'] + '.txt'
@@ -231,6 +261,9 @@ class ATMiner(object):
 
 
     def ner(self):
+        """Run the NER prediction pipeline.
+        """
+
         # Produce the Named Entity Recognition 
         self._create_ner_input()
         self.ent_recognizer.predict()
@@ -238,6 +271,12 @@ class ATMiner(object):
         
 
     def relation_extraction(self):
+        """Run the relation extraction pipeline.
+
+        Raises:
+            ValueError: if the document output format is not supported.
+        """
+
         # Extract the relation 
         # Both the input_format and output_format is the main output_format
         pred_relations = self.rel_extractor.predict(self.data, input_format=self.config["output"]["format"], output_format=self.config["output"]["format"])
@@ -250,6 +289,12 @@ class ATMiner(object):
 
 
     def write(self):
+        """Write the preditions to a file.
+
+        Raises:
+            ValueError: if the output format is not supported.
+        """
+
         # Write the results to an annoted file or produce the database outputs
         if self.config['output']['format'] == 'bioc_json':
             out_file = self.config['output']['path'] + self.config['output']['file'] + ".bioc.json"
