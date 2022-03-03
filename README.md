@@ -2,6 +2,21 @@
 
 Arthropods traits prediction pipeline.
 
+**Table of Content:**
+- [Arthropod-Trait-Miner](#arthropod-trait-miner)
+  - [Setup](#setup)
+  - [Run](#run)
+    - [Configuration](#configuration)
+    - [Run](#run-1)
+  - [Pipeline Description](#pipeline-description)
+    - [Repository structure](#repository-structure)
+    - [Classes](#classes)
+      - [ATMiner Class](#atminer-class)
+      - [EntityRecognizer Class](#entityrecognizer-class)
+      - [RelationExtractor Class](#relationextractor-class)
+      - [DataConverter Class](#dataconverter-class)
+    - [Configuration Details](#configuration-details)
+
 ## Setup
 
 We use python 3.7 for this project.
@@ -33,9 +48,9 @@ To run the pipeline switch into the `./src/atminer` directory and run:
 |		|-- output
 |		
 |		
-|--	src						    # Contains all the ATMiner scripts	
+|-- src						    # Contains all the ATMiner scripts	
 |-- oger_service			    # Contains scripts for the OGER NER model
-	|-- 	atminer				# Contains all the ATMiner scripts	
+	|-- atminer			    	# Contains all the ATMiner scripts	
 		|-- atminer.py			# The ATMiner , EntityRecognizer and RelExtractor class
 		|-- config.py			# Loads and stores the configuration 
 		|-- config.yaml		    # Configuration file
@@ -121,7 +136,7 @@ class DataConverter(object):
 
 ### Configuration Details
 - Input Format
-  - *Path: `./data/tmp/input`*
+  - *Path: `./data/tmp/input/`*
   -   .txt
   -  BIOC JSON 		# ToDo
 - Output Format
