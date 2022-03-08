@@ -26,6 +26,14 @@ class Config(object):
         self._config = conf # set it to conf
 
     def get(self, property_name):
+        """_summary_
+
+        Args:
+            property_name (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         if property_name not in self._config.keys(): # we don't want KeyError
             return None  # just return None if not found
         return self._config[property_name]

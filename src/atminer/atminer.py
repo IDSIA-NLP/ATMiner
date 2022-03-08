@@ -12,7 +12,7 @@ import json
 import os
 from transformers import LukeTokenizer, LukeModel, LukeForEntityPairClassification
 
-from data_converter import DataConverter
+from atminer.data_converter import DataConverter
 # --------------------------------------------------------------------------------------------
 
 # Use OGEr as the basemodel for the EntityRecognizer

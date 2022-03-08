@@ -8,7 +8,6 @@ Month Year
 """
 
 import itertools
-from multiprocessing import parent_process
 import spacy
 
 class DataConverter():
@@ -25,7 +24,18 @@ class DataConverter():
         
 
     def _context_indices(self, i, context_indices):
-        #a = [[0,5],[6,13],[14,45],[46,67]] # end char
+        """Determines the start and end char index of the context in which i is located.
+        
+        Example:
+            Example of context_indices: [[0,5],[6,13],[14,45],[46,67]]
+
+        Args:
+            i (int): A char index
+            context_indices (list): A list of lists with start and end char indices
+
+        Returns:
+            list: The start and end char index i is in. 
+        """
         indices = []
         for idx, c in enumerate(context_indices):
             if c[0] <= i <= c[1]:
@@ -34,6 +44,15 @@ class DataConverter():
 
 
     def _start_char_anno(self, locations, psg_offset):
+        """Get the start char of a BioC annotation
+
+        Args:
+            locations (list): List of offsets
+            psg_offset (int): Passage offset
+
+        Returns:
+            int: Start char index of annotation
+        """
         s = 999999999999
         for l in locations:
             s = min(l['offset'] - psg_offset, s)
@@ -41,6 +60,15 @@ class DataConverter():
 
 
     def _end_char_anno(self, locations, psg_offset):
+        """Get the end char of a BioC annotation
+
+        Args:
+            locations (list): List of offsets
+            psg_offset (int): Passage offset
+
+        Returns:
+            int: End char index of annotation
+        """
         e = 0
         for l in locations:
             e = max((l['offset'] + l['length']) - psg_offset, e)
@@ -48,6 +76,8 @@ class DataConverter():
 
 
     def _create_n_grams(self, list_obj, n=3):
+        """Creates a list of n-grams.
+        """
         if len(list_obj) < n:
             return [list_obj]
         return [list_obj[i:i+n] for i in range(len(list_obj)-n+1)]
@@ -55,6 +85,8 @@ class DataConverter():
 
     def _get_luke_relation(self, relation_type, text, head_start, head_end, tail_start, tail_end, 
      head_type, head_id, tail_type, tail_id, context_start_char, context_end_char):
+        """Creates a relation formatted for the LUKE model.
+        """
         relation = dict()
         relation["text"] = text                  
         relation['head'] = [head_start, head_end]
@@ -72,6 +104,15 @@ class DataConverter():
         return relation
 
     def _get_contexts(self, text, context_size):
+        """Get sliding contexts windows with **context_size** number of sentences. 
+
+        Args:
+            text (string): The text that gets splits into sliding context windows.
+            context_size (int): The number of sentences a context window should contain.
+
+        Returns:
+            list: A list of list of context. A context contains n consecutive sentences. 
+        """
         doc = self.nlp(text)
 
         # sent_indices = [[sent.start_char, sent.end_char] for sent in doc.sents]
@@ -89,7 +130,15 @@ class DataConverter():
         return contexts
 
 
-    def _get_relations(self, passage):
+    def _get_LUKE_relations(self, passage):
+        """Get potential relations in LUKE format. A relation exists between two annotations in the same context window.
+
+        Args:
+            passage (dictionary): The BioC passage dictionary.
+
+        Returns:
+            list: List of dictionaries of potential relations in LUKE format.
+        """
         # Maximum length of documents
         if len(passage["text"]) >= 1000000:
             print(f"ERROR: Document to long: len = {len(passage['text'])}")
@@ -152,12 +201,20 @@ class DataConverter():
 
 
     def bioc_to_luke(self, data):
+        """Converts a BioC JSON file with annotations into a list of relations properly formatted for the LUKE model.
+
+        Args:
+            data (dictionary): BioC JSON dictionary
+
+        Returns:
+            list: List of LUKE relations for each document in the BioC JSON dict.
+        """
         out_data = []
         for doc in data['documents']:
 
             relations = []
             for passage in doc["passages"]:
-                relations +=  self._get_relations(passage)
+                relations +=  self._get_LUKE_relations(passage)
                  
             out_data.append({
                 "id": doc["id"],

@@ -15,10 +15,10 @@ import numpy as np
 import spacy
 import json
 
-from config import Config
-from atminer import ATMiner
+from atminer.config import Config
+from atminer.atminer import ATMiner
 
-_config = Config()
+_config = Config(config_file_path="./atminer/config.yaml")
 
 # --------------------------------------------------------------------------------------------
 #                                            MAIN
@@ -28,13 +28,13 @@ _config = Config()
 # ----------------------------------------- Functions ----------------------------------------
 
 def main(logger):
-    """[summary]
+    """ Get the configuration and run the ATMiner pipeline.
 
     Args:
-        logger ([type]): [description]
+        logger (logger instance): Instance of the loguru logger
 
     Returns:
-        [type]: [description]
+        None
     """
 
     logger.info(f'VERY IMPORTANT LOG NOTE')

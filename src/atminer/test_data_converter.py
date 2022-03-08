@@ -1,6 +1,6 @@
 import json
 from loguru import logger
-from data_converter import DataConverter
+from atminer.data_converter import DataConverter
 
 
 with open("/Users/joseph/Code/ATMiner/data/tmp/oger_output/PMC3082960.json", "r", encoding="utf-8") as f:
