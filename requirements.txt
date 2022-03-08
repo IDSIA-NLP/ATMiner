@@ -2,3 +2,8 @@ spacy==3.1.1
 OGER @ git+https://github.com/OntoGene/OGER.git@f23cf9bec70ba51f85605f26f3de2df72f7c4d5a
 transformers==2.1.0
 loguru==0.5.3
+# Sphinx
+sphinx==4.2.0
+sphinx-autobuild==2021.3.14
+sphinx-press-theme==0.8.0
+rst-to-myst==0.3.2

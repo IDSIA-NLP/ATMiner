@@ -16,6 +16,10 @@ Arthropods traits prediction pipeline.
       - [RelationExtractor Class](#relationextractor-class)
       - [DataConverter Class](#dataconverter-class)
     - [Configuration Details](#configuration-details)
+  - [Documentation](#documentation)
+    - [Sphinx](#sphinx)
+      - [Update Documentation](#update-documentation)
+      - [Serve the Spinx documentation locally](#serve-the-spinx-documentation-locally)
 
 ## Setup
 
@@ -156,3 +160,22 @@ class DataConverter(object):
   - Morphology Traits
   - ~~EOL Arthropods~~   (not used)
   - ~~EOL Traits~~		(not used)
+
+
+## Documentation
+### Sphinx
+We use sphinx for the detailed documentation of the ATMiner pipeline.
+The documentation in Markdown format can be found in the `./doc` folder. 
+
+#### Update Documentation
+After updating the docstrings or documentation in the `./doc` folder run the following commands to update the Spinx documentation.
+Change to the root folder of this repository and run: `sphinx-apidoc -f -o docs/source ./src/atminer` .
+This will add update `.rst` files in the `./doc/build/` folder.
+
+To convert the `.rst` files to `.md` files run: `rst2myst convert docs/**/*.rst`
+Now, you can delete all the `.rst` files in the `./doc/build/` folder.
+
+#### Serve the Spinx documentation locally
+Change to the root folder of this repository and run: ` sphinx-autobuild docs/source docs/build/html`
+
+Alternatively, switch to the `./doc/build/home` folder and run: `python3 -m http.server 8000` 
