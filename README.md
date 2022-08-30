@@ -27,6 +27,8 @@ We use python 3.7 for this project.
 
 To install the required dependencies can use `pip install -r requirements.txt`
 
+Download the spacy web core with `python -m spacy download en_core_web_sm` and `python -m spacy download en_core_web_lg`
+
 ## Run
 
 ### Configuration

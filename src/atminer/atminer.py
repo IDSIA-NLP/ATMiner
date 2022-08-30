@@ -36,7 +36,7 @@ class EntityRecognizer(object):
         # return the entity offsets, lables and ids
         if self.model_name == "oger":
             working_dir = os.getcwd()
-            os.chdir("./oger_service")
+            os.chdir("./atminer/oger_service")
 
             cmd = ['./run_oger.sh']
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -53,14 +53,18 @@ class EntityRecognizer(object):
 
 # Use LUKE as the basemodel for the EntityRecognizer
 class RelationExtractor(object):
-    def __init__(self, model_name="luke", logger=None, context_mode=None, context_size=None ):
+    def __init__(self, model_name="luke",model_path=None, logger=None, context_mode=None, context_size=None, local_files_only=None ):
         self.model_name = model_name
+        self.model_path = model_path
         self.logger = logger
-
+        self.local_files_only = local_files_only
         self.context = context_mode
-        self.context_size =  context_size
+        if self.context == "single":
+            self.context_size = 1
+        else:
+            self.context_size =  context_size
 
-        self.data_converter = DataConverter()
+        self.data_converter = DataConverter(logger, "spacy", "en_core_web_sm", context_size = self.context_size)
 
         self.output_format = None
 
@@ -85,8 +89,14 @@ class RelationExtractor(object):
 
     def _predict_with_luke(self, luke_data):
 
-        model = LukeForEntityPairClassification.from_pretrained("studio-ousia/luke-large-finetuned-tacred")
-        tokenizer = LukeTokenizer.from_pretrained("studio-ousia/luke-large-finetuned-tacred")
+        if self.local_files_only:
+            self.logger.info("[Rel. Ext.] Load model from local files.")
+            model = LukeForEntityPairClassification.from_pretrained(self.model_path, local_files_only=True)
+            tokenizer = LukeTokenizer.from_pretrained(self.model_path)
+        else:
+            self.logger.info("[Rel. Ext.] Load model from HuggingFace model hub.")
+            model = LukeForEntityPairClassification.from_pretrained("studio-ousia/luke-large-finetuned-tacred")
+            tokenizer = LukeTokenizer.from_pretrained("studio-ousia/luke-large-finetuned-tacred")
 
         relations = dict()
         for doc in luke_data:
@@ -167,12 +177,14 @@ class ATMiner(object):
 
         self.rel_extractor = RelationExtractor(
             model_name = self.config['rel_ext']['model'], 
+            model_path = self.config['models']['path'] + self.config['rel_ext']['model_path'],
+            local_files_only = self.config['rel_ext']['from_local'],
             logger=logger,
             context_mode=self.config['context']['mode'],
             context_size=self.config['context']['size'])
 
         self.ent_recognizer = EntityRecognizer(
-            model_name = self.config['ner']['model'], 
+            model_name = self.config['ner']['model'],
             logger=logger)
 
 

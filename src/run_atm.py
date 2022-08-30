@@ -37,8 +37,7 @@ def main(logger):
         None
     """
 
-    logger.info(f'VERY IMPORTANT LOG NOTE')
-    logger.info(_config.get("input_path"))
+    logger.info(f'Load and run ATMiner ...')
 
     miner = ATMiner( 
         _config(), 
