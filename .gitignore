@@ -1,5 +1,7 @@
 # ------------- MANUALLY ADDED --------------
 
+.vscode 
+
 # Ignore all data link
 data 
 
