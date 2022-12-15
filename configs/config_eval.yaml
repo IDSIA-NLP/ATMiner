@@ -1,0 +1,33 @@
+input:
+  path: ../data/tmp/input_eval/
+  file: PMC3082961
+  format: txt # bioc_json, txt
+
+output:
+  path: ../data/tmp/output_eval/
+  file: PMC3082961
+  format: bioc_json # bioc_json
+
+tmp:
+  path: ../data/tmp/
+  oger_input: oger_input/ 
+  oger_output: oger_output/ 
+
+ner:
+  model: oger # oger
+
+rel_ext:
+  model: luke # luke
+  model_path: 2022-08-30-15-52_studio-ousia-luke-base # from the cloud "studio-ousia/luke-large-finetuned-tacred"
+  from_local: True
+
+nlp:
+  type: spacy
+  model: en_core_web_sm
+
+context:
+  mode: multiple # single, multiple 
+  size: 2
+
+models:
+  path: ../data/resources/models/

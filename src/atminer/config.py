@@ -18,7 +18,7 @@ import yaml
 
 class Config(object):
 
-    def __init__(self, config_file_path="./config.yaml"):
+    def __init__(self, config_file_path="../../configs/config.yaml"):
 
         with open(config_file_path, 'r') as stream:
             conf = yaml.safe_load(stream)

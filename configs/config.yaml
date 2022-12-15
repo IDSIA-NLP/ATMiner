@@ -15,6 +15,7 @@ tmp:
 
 ner:
   model: oger # oger
+  settings_path: ../configs/oger_settings.ini
 
 rel_ext:
   model: luke # luke

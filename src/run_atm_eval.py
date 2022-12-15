@@ -18,7 +18,7 @@ import json
 from atminer.config import Config
 from atminer.atminer import ATMiner
 
-_config = Config(config_file_path="../configs/config.yaml")
+_config = Config(config_file_path="../configs/config_eval.yaml")
 
 # --------------------------------------------------------------------------------------------
 #                                            MAIN
