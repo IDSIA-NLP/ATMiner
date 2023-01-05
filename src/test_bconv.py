@@ -1,10 +1,16 @@
 import bconv
 from bconv.doc.document import RelationMember
 
-# doc = bconv.load('../data/tmp/input/PMC3082961.txt', fmt='txt')
-doc = bconv.load('../data/tmp/input/test_BC5CDR.json', fmt='bioc_json')
+#doc = bconv.load('../data/tmp/input/test_BC5CDR.json', fmt='bioc_json')
+doc = bconv.load('../data/tmp/input/PMC3082961.txt', fmt='txt')
 
 # print(doc[0].text)
+print(type(doc))
+print(type(doc) == bconv.doc.document.Collection)
+print(type(doc) == bconv.doc.document.Document)
+print(doc.id)
+print(doc.filename)
+
 print(doc)
 print(doc[0])
 
@@ -12,11 +18,15 @@ for section in doc:
     print(section)
     for sentence in section:
         print(sentence)
+        # ent = bconv.Entity(None, sentence.text[0:1], [(0,1)], {"type": "some_type"}) 
+        # sentence.add_entities([ent])
+
+
 
 
 print(doc[0][1].text)
 
-# Entity(id, text, spans, meta)
+#Entity(id, text, spans, meta)
 ent = bconv.Entity(None, "Intravenous administration", [(0,26)], {"type": "some_type"}) 
 doc[0][1].add_entities([ent])
 
@@ -64,3 +74,8 @@ for r in doc[0].iter_relations():
 
 print("Document entities:")
 print("Document entities len:", len(list(doc[0].iter_entities())))
+# print("Document entities len:", len(list(doc.iter_entities())))
+# print("Document entities len:", [ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(doc.iter_entities())])
+
+with open('../data/tmp/output/test_output_BC5CDR.json', 'w', encoding='utf8') as f:
+    bconv.dump(doc, f, fmt='bioc_json')

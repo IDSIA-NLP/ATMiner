@@ -1,11 +1,13 @@
 input:
   path: ../data/tmp/input/
   file: PMC3082961
+  extension: txt
   format: txt # bioc_json, txt
 
 output:
   path: ../data/tmp/output/
   file: PMC3082961
+  extension: bioc.json
   format: bioc_json # bioc_json
 
 tmp:

@@ -13,6 +13,7 @@ import os
 from io import StringIO
 import uuid
 
+import bconv
 from transformers import LukeTokenizer, LukeModel, LukeForEntityPairClassification
 from oger.ctrl.router import Router, PipelineServer
 
@@ -22,21 +23,40 @@ from atminer.data_converter import DataConverter
 # --------------------------------------------------------------------------------------------
 
 class ATEntity(object):
-    def __init__(self, text, start, end, ent_type, preferred_form=None, resource=None, native_id=None, cui=None, extra_info=None):
+    def __init__(self, text, spans, ent_type, preferred_form="", resource="", native_id="", cui="", extra_info=None):
         self.id_ = uuid.uuid4().hex
         self.text = text
-        self.start = start
-        self.end = end
-        self.ent_type = ent_type
-        self.preferred_form = preferred_form
-        self.resource = resource
-        self.native_id = native_id
-        self.cui = cui
-        self.extra_info = extra_info
+        self.spans = sorted((start, end) for start, end in spans)
+        
+        self.metadata = {}
+        self.metadata["ent_type"] = ent_type
+        self.metadata["preferred_form"]  = preferred_form
+        self.metadata["resource"]  = resource
+        self.metadata["native_id"]  = native_id
+        self.metadata["cui"]  = cui
+
+        if type(extra_info) == dict or extra_info == None:
+            if not extra_info == None:
+                if not set(extra_info.keys()) & set(self.metadata.keys()):
+                    self.metadata.update(extra_info)
+                else:
+                    raise ValueError("Extra-info cannot have overlapping keys with metadata.")
+        else:
+            raise ValueError("Extra-info must be type of dict or None.")
 
     def shift_offset(self, shift_by):
         self.start += shift_by
         self.end += shift_by
+
+    def update_metadata(self, extra_info):
+        if type(extra_info) == dict:
+            if not set(extra_info.keys()) & set(self.metadata.keys()):
+                self.metadata.update(extra_info)
+            else:
+                raise ValueError("Extra-info cannot have overlapping keys with metadata.")
+        else:
+            raise ValueError("Extra-info must be type of dict")
+
     
 
 # Use OGEr as the basemodel for the EntityRecognizer
@@ -49,13 +69,14 @@ class EntityRecognizer(object):
         self.logger = logger
 
         if self.model_name == "oger":
-            self._init_oger_pipline()
-        
+            self._init_oger_pipeline()
+
 
     def _init_oger_pipeline(self):
         conf = Router(settings=self.model_config["settings_path"])
         # Initiziate oger pipline
         self.oger_pipeline = PipelineServer(conf)
+
 
     def _predict_with_oger(self, text):
         doc = self.oger_pipeline.load_one(StringIO(text), 'txt')
@@ -66,15 +87,16 @@ class EntityRecognizer(object):
         for ent in doc.iter_entities():
             entities.append(ATEntity(
                 ent.text,
-                ent.start,
-                ent.end,
+                [(ent.start,ent.end)],
                 ent.type,
                 preferred_form = ent.pref, 
                 resource = ent.db, 
                 native_id = ent.cid, 
-                cui = ent.cui
+                cui = ent.cui,
+                extra_info={"annotator": "OGER model"}
             ))
         return entities
+
 
     def predict(self, text):
         """ Create the NER prediction.
@@ -232,71 +254,117 @@ class ATMiner(object):
 
         self.ent_recognizer = EntityRecognizer(
             model_name = self.config['ner']['model'],
-            model_config= self.config['ner']
+            model_config= self.config['ner'],
             logger=logger)
 
 
         self.input = None
+        #! Remove self.data = None after the update of the relation extraction
         self.data = None    #BioC format
-        self.doc 
+        self.doc = None
+
+        self.input_formats = [
+            'bioc_xml', 
+            'bioc_json', 
+            'conll', 
+            'pubtator', 
+            'pubtator_fbk', 
+            'pubmed', 'pxml', 
+            'pmc', 
+            'nxml', 
+            'pubanno_json', 
+            'pubanno_json.tgz', 
+            'txt', 
+            'txt.json'
+        ]
+        
+        self.output_formats = [
+            'bioc_xml', 
+            'bioc_json', 
+            'conll', 
+            'pubtator', 
+            'pubtator_fbk', 
+            'pubanno_json', 
+            'pubanno_json.tgz', 
+            'text_csv', 
+            'text_tsv'
+        ]
     
 
-    def _load_txt_file(self, file_path):
-        with open(file_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-        return lines
-
-
-    def _write_txt_file(self, file_path):
-        with open(file_path, "w", encoding="utf-8") as f:
-            for line in self.input:
-                f.write(line)
-
-
-    def _load_bioc_json_file(self, file_path):
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data
-
-    def _write_bioc_json_file(self, file_path, json_data):
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(json_data, f, indent=4, sort_keys=True)
-
     
-    
+    # def _load_txt_file(self, file_path):
+    #     with open(file_path, "r", encoding="utf-8") as f:
+    #             lines = f.readlines()
+    #     return lines
+
+
+    # def _write_txt_file(self, file_path):
+    #     with open(file_path, "w", encoding="utf-8") as f:
+    #         for line in self.input:
+    #             f.write(line)
+
+
+    # def _load_bioc_json_file(self, file_path):
+    #     with open(file_path, "r", encoding="utf-8") as f:
+    #         data = json.load(f)
+    #     return data
+
+    # def _write_bioc_json_file(self, file_path, json_data):
+    #     with open(file_path, "w", encoding="utf-8") as f:
+    #         json.dump(json_data, f, indent=4, sort_keys=True)
+
     
     def _load_ner_input(self):
         pass
     
-    def _load_rel_ect_input(self):
+    def _load_rel_ext_input(self):
         pass
     
+    def _ner_predict_from_document(self, document):
+        for section in document:
+            for sentence in section:
+                entities = self.ent_recognizer.predict(sentence.text)
+                #TODO: Improvment make it optional to add predicted entities later to the document
+                # Add entities to the sentence.
+                new_entities = []
+                for entity in entities:
+                    # Note: bconv checks if entity text match with offset selected sentence text
+                    self.logger.debug(f"Entity: {vars(entity)}")
+                    self.logger.debug(f"Spans: {entity.spans}")
+                    new_entities.append(bconv.Entity(entity.id_, entity.text, entity.spans, entity.metadata))
+                    # Append entites to document sentence
+                    if new_entities:
+                        sentence.add_entities(new_entities)
 
     def _ner_predict(self):
 
-        doc_entities = []
-        for paragraph in self.doc:
-            
-            #TODO get paragraph offset
-            paragraph_offset = "???????????"
-            
-            entities = self.ent_recognizer.predict(paragraph.text)
-            for ent in entities:
-                ent.shit_offset(paragraph_offset)
-            
-            doc_entities += entities
-            
-        #TODO add entities to document
+        if self.doc_type == "collection":
+            for document in self.doc:
+                self._ner_predict_from_document(document)
+                
+        elif self.doc_type == "document":
+            self._ner_predict_from_document(self.doc)
 
-    # def _create_ner_input(self):
-    #     if self.config['ner']['model'] == 'oger':
-    #         tmp_file = self.config['tmp']['path'] + self.config['tmp']['oger_input'] + self.config['input']['file'] + '.txt'
-    #         self._write_txt_file(tmp_file)
-    #     elif self.config['ner']['model'] == 'APossibleSecondModel':
-    #         pass
-    #     else:
-    #         self.logger.error("NER model not supported.")
-    #         raise ValueError("NER model not supported.")
+        else:
+            self.logger.error("Document type is not supported.")
+            raise ValueError("Document type is not supported.")
+            
+    def _check_ner_predictions(self):
+        if self.doc_type == "collection":
+            for document in self.doc:
+                self.logger.debug(f"Document entities len: {len(list(document.iter_entities()))}")
+                self.logger.debug(f"Document entities:{[ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(document.iter_entities())]}")
+                
+        elif self.doc_type == "document":
+            self.logger.debug(f"Document entities len: {len(list(self.doc.iter_entities()))}")
+            self.logger.debug(f"Document entities:{[ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(self.doc.iter_entities())]}")
+
+        else:
+            self.logger.error("Document type is not supported.")
+            raise ValueError("Document type is not supported.")
+
+        
+
 
     def _rel_ext_predict(self):
 
@@ -308,10 +376,6 @@ class ATMiner(object):
         else:
             self.logger.error("Output format not supported.")
             raise ValueError("Output format not supported.")
-
-    def _sanitize_ner_output(self):
-        #TODO run some checks to make sure that the doc model has the write format 
-        pass
 
     def _sanitize_rel_ext_output(self):
         #TODO run some checks to make sure that the doc model has the write format 
@@ -331,36 +395,51 @@ class ATMiner(object):
     def _create_rel_ext_input(self):
         pass
 
+    def load_input(self):
+        if self.config["input"]["format"] in self.input_formats:
+            file_path = f'{self.config["input"]["path"]}{self.config["input"]["file"]}.{self.config["input"]["extension"]}'
+            self.logger.info(f"Loading input document: {file_path}")
 
-    def load(self):
-        """Load the input files for the ATMiner predition pipeline
+            self.doc = bconv.load(file_path, fmt=self.config["input"]["format"])
 
-        Raises:
-            ValueError: if the input format is not supported.
-        """
-
-        # Load a plain text or XML file
-        if self.config['input']['format'] == 'txt':
-            in_file = self.config['input']['path'] + self.config['input']['file'] + '.txt'
-            self.input = self._load_txt_file(in_file)
-                
-        elif self.config['input_format'] == 'bioc_json':
-            pass
-
+            if type(self.doc) == bconv.doc.document.Collection:
+                self.doc_type = "collection"
+            if type(self.doc) == bconv.doc.document.Document:
+                self.doc_type = "document"
+            else:
+                self.logger.error("Document type is not supported.")
+                raise ValueError("Document type is not supported.")
         else:
             self.logger.error("Input format not supported.")
             raise ValueError("Input format not supported.")
+
+    # def load(self):
+    #     """Load the input files for the ATMiner predition pipeline
+
+    #     Raises:
+    #         ValueError: if the input format is not supported.
+    #     """
+
+    #     # Load a plain text or XML file
+    #     if self.config['input']['format'] == 'txt':
+    #         in_file = self.config['input']['path'] + self.config['input']['file'] + '.txt'
+    #         self.input = self._load_txt_file(in_file)
+                
+    #     elif self.config['input_format'] == 'bioc_json':
+    #         pass
+
+    #     else:
+    #         self.logger.error("Input format not supported.")
+    #         raise ValueError("Input format not supported.")
 
 
     def ner(self):
         """Run the NER prediction pipeline.
         """
-
-        # Produce the Named Entity Recognition 
-        
-        self._load_ner_input()
+        # Produce the Named Entity Recognition  
+        # self._load_ner_input()
         self._ner_predict()
-        self._sanitize_ner_output()
+        self._check_ner_predictions()
         
 
     def relation_extraction(self):
@@ -377,34 +456,46 @@ class ATMiner(object):
         self._sanitize_rel_ext_output()
 
 
-    def write(self):
-        """Write the preditions to a file.
+    # def write(self):
+    #     """Write the preditions to a file.
 
-        Raises:
-            ValueError: if the output format is not supported.
-        """
+    #     Raises:
+    #         ValueError: if the output format is not supported.
+    #     """
 
-        # Write the results to an annoted file or produce the database outputs
-        if self.config['output']['format'] == 'bioc_json':
-            out_file = self.config['output']['path'] + self.config['output']['file'] + ".bioc.json"
-            self._write_bioc_json_file(out_file, self.data)
+    #     # Write the results to an annoted file or produce the database outputs
+    #     if self.config['output']['format'] == 'bioc_json':
+    #         out_file = self.config['output']['path'] + self.config['output']['file'] + ".bioc.json"
+    #         self._write_bioc_json_file(out_file, self.data)
+    #     else:
+    #         self.logger.error("Output format not supported.")
+    #         raise ValueError("Output format not supported.")
+
+    def write_output(self): 
+        if self.config["output"]["format"] in self.input_formats:
+            file_path = f'{self.config["output"]["path"]}{self.config["output"]["file"]}.{self.config["output"]["extension"]}'
+            with open(file_path, 'w', encoding='utf8') as f:
+                #TODO: Might need more specification of the different output formats options
+                bconv.dump(self.doc, f, fmt=self.config["output"]["format"])
         else:
-            self.logger.error("Output format not supported.")
-            raise ValueError("Output format not supported.")
+            self.logger.error("Input format not supported.")
+            raise ValueError("Input format not supported.")
 
+        self.logger.info(f"Wrote output document to file: {file_path}")
 
     def run(self):
         # Load the input
-        self.load()
+        self.load_input()
 
         # Run the NER
         self.ner()
 
-        # Run the relation extraction
-        self.relation_extraction()      
+        # # Run the relation extraction
+        # self.relation_extraction()      
         
-        # Write the output 
-        self.write()     
+        # # Write the output 
+        self.write_output()     
+
 
 
     def eval(self):
