@@ -349,14 +349,15 @@ class ATMiner(object):
             self.logger.error("Document type is not supported.")
             raise ValueError("Document type is not supported.")
             
+
     def _check_ner_predictions(self):
         if self.doc_type == "collection":
             for document in self.doc:
-                self.logger.debug(f"Document entities len: {len(list(document.iter_entities()))}")
+                self.logger.debug(f"Number of document entities: {len(list(document.iter_entities()))}")
                 self.logger.debug(f"Document entities:{[ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(document.iter_entities())]}")
                 
         elif self.doc_type == "document":
-            self.logger.debug(f"Document entities len: {len(list(self.doc.iter_entities()))}")
+            self.logger.debug(f"Number of document entities: {len(list(self.doc.iter_entities()))}")
             self.logger.debug(f"Document entities:{[ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(self.doc.iter_entities())]}")
 
         else:
@@ -364,7 +365,6 @@ class ATMiner(object):
             raise ValueError("Document type is not supported.")
 
         
-
 
     def _rel_ext_predict(self):
 
