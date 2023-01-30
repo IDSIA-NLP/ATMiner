@@ -2,6 +2,8 @@
 
 # Entity Recognition
 
+*NEEDS TO BE UPDATED*
+
 The `EntityRecognizer` should take a text string and retuern the a list of dicts with:
 ```python
 [{
@@ -14,6 +16,6 @@ The `EntityRecognizer` should take a text string and retuern the a list of dicts
     "resource" : "..."
     "native_id" : "..."
     "cui" : "..."
-    "extra_info" : "..."
+    ... + extra_info 
 }]
 ```

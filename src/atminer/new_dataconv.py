@@ -71,7 +71,7 @@ class DataConverter():
             'end_char': ngram_sents[-1]._end, 
             'text': "".join([sent.text for sent in ngram_sents]),
             #! Change to e.metadata["ent_type"] for use with ATMiner
-            'entities': [ {"id": e.id, "start_char": e.start, "end_char": e.end, "type": e.metadata["name"], "text":e.text } for sent in ngram_sents for e in list(sent.iter_entities())],
+            'entities': [ {"id": e.id, "start_char": e.start, "end_char": e.end, "type": e.metadata["type"], "text":e.text } for sent in ngram_sents for e in list(sent.iter_entities())],
         } for ngram_sents in ngrams_sents]
 
         return contexts

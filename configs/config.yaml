@@ -1,12 +1,12 @@
 input:
   path: ../data/tmp/input/
-  file: PMC3082961
+  file: PMC3082987
   extension: txt
   format: txt # bioc_json, txt
 
 output:
   path: ../data/tmp/output/
-  file: PMC3082961
+  # file: PMC3082967 Use input file name instead
   extension: bioc.json
   format: bioc_json # bioc_json
 
@@ -17,12 +17,15 @@ tmp:
 
 ner:
   model: oger # oger
+  version: v1.0.1
   settings_path: ../configs/oger_settings.ini
 
 rel_ext:
   model: luke # luke
+  version: v1.0.1
   model_path: 2022-08-30-15-52_studio-ousia-luke-base # from the cloud "studio-ousia/luke-large-finetuned-tacred"
   from_local: True
+  prune_mode: random # random, ...
 
 nlp:
   type: spacy
@@ -34,3 +37,6 @@ context:
 
 models:
   path: ../data/resources/models/
+
+logger:
+  level: DEBUG #  CRITICAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, TRACE  

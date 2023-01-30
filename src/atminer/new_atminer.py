@@ -12,13 +12,14 @@ import json
 import os
 from io import StringIO
 import uuid
+import pandas as pd
 
 import bconv
 from transformers import LukeTokenizer, LukeModel, LukeForEntityPairClassification
 from oger.ctrl.router import Router, PipelineServer
 
 
-from atminer.data_converter import DataConverter
+from atminer.new_dataconv import DataConverter
 
 # --------------------------------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ class ATEntity(object):
         self.spans = sorted((start, end) for start, end in spans)
         
         self.metadata = {}
-        self.metadata["ent_type"] = ent_type
+        self.metadata["type"] = ent_type
         self.metadata["preferred_form"]  = preferred_form
         self.metadata["resource"]  = resource
         self.metadata["native_id"]  = native_id
@@ -61,9 +62,10 @@ class ATEntity(object):
 
 # Use OGEr as the basemodel for the EntityRecognizer
 class EntityRecognizer(object):
-    def __init__(self, model_name="oger", model_config=None, logger=None):
+    def __init__(self, model_name="oger", model_version=None, model_config=None, logger=None):
         
         self.model_name = model_name
+        self.model_version = model_version
         self.model_config = model_config
 
         self.logger = logger
@@ -93,7 +95,7 @@ class EntityRecognizer(object):
                 resource = ent.db, 
                 native_id = ent.cid, 
                 cui = ent.cui,
-                extra_info={"annotator": "OGER model"}
+                extra_info={"annotator": f"{self.model_name}-{self.model_version}"}
             ))
         return entities
 
@@ -107,9 +109,6 @@ class EntityRecognizer(object):
         Returns:
             None: no return NER output is stored in the ./data/tmp/oger_output, as of now
         """
-
-        # predict the entities based given a text
-        # return the entity offsets, lables and ids
         if self.model_name == "oger":
                 return self._predict_with_oger(text)
         else:
@@ -122,8 +121,9 @@ class EntityRecognizer(object):
 
 # Use LUKE as the basemodel for the EntityRecognizer
 class RelationExtractor(object):
-    def __init__(self, model_name="luke",model_path=None, logger=None, context_mode=None, context_size=None, local_files_only=None ):
+    def __init__(self, model_name="luke",model_path=None, model_version=None, logger=None, context_mode=None, context_size=None, local_files_only=None ):
         self.model_name = model_name
+        self.model_version = model_version
         self.model_path = model_path
         self.logger = logger
         self.local_files_only = local_files_only
@@ -133,28 +133,23 @@ class RelationExtractor(object):
         else:
             self.context_size =  context_size
 
-        self.data_converter = DataConverter(logger, "spacy", "en_core_web_sm", context_size = self.context_size)
+        self.data_converter = DataConverter(logger, context_size = self.context_size)
 
         self.output_format = None
 
 
-    def _create_bioc_relation(self, rel_id, head_role, head_id, tail_role, tail_id, rel_type, context_start_char, context_end_char):
+    def _format_relation(self, rel_id, head_role, head_id, tail_role, tail_id, rel_type, context_start_char, context_end_char):
         relation = dict()
         relation["id"] = rel_id
-        relation["node"] = [{
-                "role": head_role, 
-                "refid": head_id, 
-            },
-            {
-                "role": tail_role, 
-                "refid": tail_id, 
-        }]
-        relation["infons"] = {
+        relation["node"] = ((head_id,head_role),(tail_id, tail_role))
+        relation["metadata"] = {
             "type": rel_type,
             "context_start_char":context_start_char,
             "context_end_char":context_end_char,
+            "annotator": f"{self.model_name}-{self.model_version}"
         }
         return relation
+
 
     def _predict_with_luke(self, luke_data):
 
@@ -167,67 +162,48 @@ class RelationExtractor(object):
             model = LukeForEntityPairClassification.from_pretrained("studio-ousia/luke-large-finetuned-tacred")
             tokenizer = LukeTokenizer.from_pretrained("studio-ousia/luke-large-finetuned-tacred")
 
-        relations = dict()
-        for doc in luke_data:
-            for rel_idx, relation_dict in enumerate(doc['relations']):
+        # relations = dict()
+        relations = list()
+        for rel_idx, relation_dict in enumerate(luke_data):
 
-                entity_spans = [ 
-                    tuple(relation_dict["head"]),
-                    tuple(relation_dict["tail"])
-                ]
-                inputs = tokenizer(relation_dict["text"], entity_spans=entity_spans, return_tensors="pt")
-                outputs = model(**inputs)
-                logits = outputs.logits
-                predicted_class_idx = int(logits[0].argmax())
-                pred_rel = model.config.id2label[predicted_class_idx]
-                
-                if self.output_format == 'bioc_json':
-                    formatted_rel = self._create_bioc_relation(
-                        rel_idx, 
-                        relation_dict["head_type"], 
-                        relation_dict["head_id"], 
-                        relation_dict["tail_type"], 
-                        relation_dict["tail_id"], 
-                        pred_rel, 
-                        relation_dict["context_start_char"], 
-                        relation_dict["context_end_char"])
-                else:
-                    self.logger.error(f"Output format {self.output_format} not supported.")
-                    raise ValueError("Output format not supported.")
+            entity_spans = [ 
+                tuple(relation_dict["head"]),
+                tuple(relation_dict["tail"])
+            ]
+            inputs = tokenizer(relation_dict["text"], entity_spans=entity_spans, return_tensors="pt")
+            outputs = model(**inputs)
+            logits = outputs.logits
+            predicted_class_idx = int(logits[0].argmax())
+            pred_rel = model.config.id2label[predicted_class_idx]
+            
+            rel = {
+                "id": rel_idx,
+                "head_role": relation_dict["head_type"],
+                "head_id": relation_dict["head_id"],
+                "tail_role": relation_dict["tail_type"],
+                "tail_id": relation_dict["tail_id"],
+                "type": pred_rel,
+                "context_start_char": relation_dict["context_start_char"],
+                "context_end_char": relation_dict["context_end_char"],
+                "context_size": self.context_size,
+                "annotator": f"{self.model_name}-{self.model_version}"
+            }
 
-                relations[doc["id"]] = formatted_rel
-
+            relations.append(rel)
+        
         return relations
 
-    def predict(self, data, input_format='bioc_json', output_format='bioc_json'):
+
+    def predict(self, document):
         """Create the relation predictions.
-
-        Args:
-            data (dict): the input data for the rel extraction model
-            input_format (str, optional): input format. Defaults to 'bioc_json'.
-            output_format (str, optional): output format. Defaults to 'bioc_json'.
-
-        Raises:
-            ValueError: if relation extraction model is not supported
-            ValueError: if input format is not supported
-
-        Returns:
-            dict: dictionary formatted according to the output format
         """
 
         # predict the relation based given a text, the entity offsets and the entity labels
         # return the relation type
-        self.output_format = output_format
 
         if self.model_name == "luke":
-            if input_format == 'bioc_json':
-                luke_data = self.data_converter.bioc_to_luke(data)
-
-                pred_relations = self._predict_with_luke(luke_data)
-
-            else:
-                self.logger.error(f"Input format {input_format} not supported.")
-                raise ValueError("Input format not supported.")
+            luke_data = self.data_converter.to_luke(document)
+            pred_relations = self._predict_with_luke(luke_data)
 
         else:
             self.logger.error(f"Relation extraction {self.model_name} model not supported.")
@@ -246,6 +222,7 @@ class ATMiner(object):
 
         self.rel_extractor = RelationExtractor(
             model_name = self.config['rel_ext']['model'], 
+            model_version = self.config['rel_ext']['version'], 
             model_path = self.config['models']['path'] + self.config['rel_ext']['model_path'],
             local_files_only = self.config['rel_ext']['from_local'],
             logger=logger,
@@ -254,13 +231,12 @@ class ATMiner(object):
 
         self.ent_recognizer = EntityRecognizer(
             model_name = self.config['ner']['model'],
+            model_version = self.config['rel_ext']['version'],
             model_config= self.config['ner'],
             logger=logger)
 
 
         self.input = None
-        #! Remove self.data = None after the update of the relation extraction
-        self.data = None    #BioC format
         self.doc = None
 
         self.input_formats = [
@@ -289,37 +265,9 @@ class ATMiner(object):
             'text_csv', 
             'text_tsv'
         ]
-    
-
-    
-    # def _load_txt_file(self, file_path):
-    #     with open(file_path, "r", encoding="utf-8") as f:
-    #             lines = f.readlines()
-    #     return lines
 
 
-    # def _write_txt_file(self, file_path):
-    #     with open(file_path, "w", encoding="utf-8") as f:
-    #         for line in self.input:
-    #             f.write(line)
-
-
-    # def _load_bioc_json_file(self, file_path):
-    #     with open(file_path, "r", encoding="utf-8") as f:
-    #         data = json.load(f)
-    #     return data
-
-    # def _write_bioc_json_file(self, file_path, json_data):
-    #     with open(file_path, "w", encoding="utf-8") as f:
-    #         json.dump(json_data, f, indent=4, sort_keys=True)
-
-    
-    def _load_ner_input(self):
-        pass
-    
-    def _load_rel_ext_input(self):
-        pass
-    
+    # ------------------------------------ NER Pipeline --------------------------------------
     def _ner_predict_from_document(self, document):
         for section in document:
             for sentence in section:
@@ -329,12 +277,13 @@ class ATMiner(object):
                 new_entities = []
                 for entity in entities:
                     # Note: bconv checks if entity text match with offset selected sentence text
-                    self.logger.debug(f"Entity: {vars(entity)}")
-                    self.logger.debug(f"Spans: {entity.spans}")
+                    self.logger.trace(f"Entity: {vars(entity)}")
+                    self.logger.trace(f"Spans: {entity.spans}")
                     new_entities.append(bconv.Entity(entity.id_, entity.text, entity.spans, entity.metadata))
                     # Append entites to document sentence
                     if new_entities:
                         sentence.add_entities(new_entities)
+
 
     def _ner_predict(self):
 
@@ -354,47 +303,100 @@ class ATMiner(object):
         if self.doc_type == "collection":
             for document in self.doc:
                 self.logger.debug(f"Number of document entities: {len(list(document.iter_entities()))}")
-                self.logger.debug(f"Document entities:{[ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(document.iter_entities())]}")
+                self.logger.trace(f"Document entities:{[ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(document.iter_entities())]}")
                 
         elif self.doc_type == "document":
             self.logger.debug(f"Number of document entities: {len(list(self.doc.iter_entities()))}")
-            self.logger.debug(f"Document entities:{[ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(self.doc.iter_entities())]}")
+            self.logger.trace(f"Document entities:{[ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(self.doc.iter_entities())]}")
 
         else:
             self.logger.error("Document type is not supported.")
             raise ValueError("Document type is not supported.")
 
+    # ---------------------------------- Relation Ext. Pipeline ------------------------------
+    def _drop_relation_duplicates(self, pred_relations , mode="random"):
+        self.logger.debug(f"Number of pred. relations before pruning: {len(pred_relations)}")
+
+        if mode == "random":
+            df = pd.DataFrame(pred_relations)
+            df.drop_duplicates(subset=['head_id', 'tail_id'], keep='last', inplace=True)
+            pruned_relations =  df.to_dict("records")
+        else:
+            self.logger.error("Pruning mode is not supported.")
+            raise ValueError("Pruning mode is not supported.")
+
+        self.logger.debug(f"Number of pred. relations after pruning: {len(pruned_relations)}")
+        return pruned_relations
+
+
+    def _format_relation(self, rel):
+        relation = dict()
+        relation["id"] = rel["id"]
+        relation["node"] = ((rel["head_id"],rel["head_role"]),(rel["tail_id"], rel["tail_role"]))
+        relation["metadata"] = {
+            "type": rel["type"],
+            "context_start_char": rel["context_start_char"],
+            "context_end_char": rel["context_end_char"],
+            "context_size": rel["context_size"],
+            "annotator": rel["annotator"]
+        }
+        return relation
+
+
+    def _rel_ext_predict_from_document(self, document):
+        pred_relations = self.rel_extractor.predict(document)
+
+        # Remove relation duplicate 
+        pred_relations = self._drop_relation_duplicates(pred_relations, mode=self.config['rel_ext']['prune_mode'])
+
+        for pred_relation in pred_relations:
+            # pred_relation = {
+            #     "id": rel_idx,
+            #     "head_role": relation_dict["head_type"],
+            #     "head_id": relation_dict["head_id"],
+            #     "tail_role": relation_dict["tail_type"],
+            #     "tail_id": relation_dict["tail_id"],
+            #     "type": pred_rel,
+            #     "context_start_char": relation_dict["context_start_char"],
+            #     "context_end_char": relation_dict["context_end_char"],
+            #     "context_size": self.context_size,
+            #     "annotator": f"{self.model_name}-{self.model_version}"
+            # }
+            fmt_rel = self._format_relation(pred_relation)
+            new_rel = bconv.Relation(fmt_rel['id'], fmt_rel['node'])
+            new_rel.metadata = fmt_rel['metadata']
+
+            document.relations.append(new_rel)
         
+        document.sanitize_relations()
 
     def _rel_ext_predict(self):
-
-        # TODO rewrite everything to that it works with the new doc element         
-        pred_relations = self.rel_extractor.predict(self.data, input_format=self.config["output"]["format"], output_format=self.config["output"]["format"])
-        if self.config['output']['format'] == 'bioc_json':
-            for doc in self.data["documents"]:
-                doc["relations"] = pred_relations[doc["id"]]
+        if self.doc_type == "collection":
+            for document in self.doc:
+                self._rel_ext_predict_from_document(document)                
+                
+        elif self.doc_type == "document":
+            self._rel_ext_predict_from_document(self.doc) 
+            
         else:
-            self.logger.error("Output format not supported.")
-            raise ValueError("Output format not supported.")
+            self.logger.error("Document type is not supported.")
+            raise ValueError("Document type is not supported.")
 
-    def _sanitize_rel_ext_output(self):
-        #TODO run some checks to make sure that the doc model has the write format 
-        pass
+    def _check_rel_ext_predictions(self):
+        if self.doc_type == "collection":
+            for document in self.doc:
+                self.logger.debug(f"Number of document relations: {len(list(document.iter_relations()))}")
+                self.logger.trace(f"Document relations:{[ [e ] for e in list(document.iter_relations())]}")
+                
+        elif self.doc_type == "document":
+            self.logger.debug(f"Number of document relations: {len(list(self.doc.iter_relations()))}")
+            self.logger.trace(f"Document relations:{[ [e ] for e in list(self.doc.iter_relations())]}")
 
+        else:
+            self.logger.error("Document type is not supported.")
+            raise ValueError("Document type is not supported.")
 
-    def _make_unique_bioc_entity_ids(self): 
-        """Replace the annotations entities in the BioC JSON with unique ids."""
-        for doc in self.data["documents"]:
-            id_counter = 0
-            for psg in doc["passages"]:
-                for anno in psg["annotations"]:
-                    anno["id"] = id_counter
-                    id_counter += 1
-
-
-    def _create_rel_ext_input(self):
-        pass
-
+    # ------------------------------------ Main Pipeline ------------------------------------ 
     def load_input(self):
         if self.config["input"]["format"] in self.input_formats:
             file_path = f'{self.config["input"]["path"]}{self.config["input"]["file"]}.{self.config["input"]["extension"]}'
@@ -413,67 +415,28 @@ class ATMiner(object):
             self.logger.error("Input format not supported.")
             raise ValueError("Input format not supported.")
 
-    # def load(self):
-    #     """Load the input files for the ATMiner predition pipeline
-
-    #     Raises:
-    #         ValueError: if the input format is not supported.
-    #     """
-
-    #     # Load a plain text or XML file
-    #     if self.config['input']['format'] == 'txt':
-    #         in_file = self.config['input']['path'] + self.config['input']['file'] + '.txt'
-    #         self.input = self._load_txt_file(in_file)
-                
-    #     elif self.config['input_format'] == 'bioc_json':
-    #         pass
-
-    #     else:
-    #         self.logger.error("Input format not supported.")
-    #         raise ValueError("Input format not supported.")
-
 
     def ner(self):
         """Run the NER prediction pipeline.
         """
         # Produce the Named Entity Recognition  
-        # self._load_ner_input()
         self._ner_predict()
         self._check_ner_predictions()
         
 
+
     def relation_extraction(self):
         """Run the relation extraction pipeline.
-
-        Raises:
-            ValueError: if the document output format is not supported.
         """
 
         # Extract the relation 
-        # Both the input_format and output_format is the main output_format
-        self._load_rel_ext_input()
         self._rel_ext_predict()
-        self._sanitize_rel_ext_output()
+        self._check_rel_ext_predictions()
 
-
-    # def write(self):
-    #     """Write the preditions to a file.
-
-    #     Raises:
-    #         ValueError: if the output format is not supported.
-    #     """
-
-    #     # Write the results to an annoted file or produce the database outputs
-    #     if self.config['output']['format'] == 'bioc_json':
-    #         out_file = self.config['output']['path'] + self.config['output']['file'] + ".bioc.json"
-    #         self._write_bioc_json_file(out_file, self.data)
-    #     else:
-    #         self.logger.error("Output format not supported.")
-    #         raise ValueError("Output format not supported.")
 
     def write_output(self): 
         if self.config["output"]["format"] in self.input_formats:
-            file_path = f'{self.config["output"]["path"]}{self.config["output"]["file"]}.{self.config["output"]["extension"]}'
+            file_path = f'{self.config["output"]["path"]}{self.config["input"]["file"]}.{self.config["output"]["extension"]}'
             with open(file_path, 'w', encoding='utf8') as f:
                 #TODO: Might need more specification of the different output formats options
                 bconv.dump(self.doc, f, fmt=self.config["output"]["format"])
@@ -483,6 +446,7 @@ class ATMiner(object):
 
         self.logger.info(f"Wrote output document to file: {file_path}")
 
+
     def run(self):
         # Load the input
         self.load_input()
@@ -491,7 +455,7 @@ class ATMiner(object):
         self.ner()
 
         # # Run the relation extraction
-        # self.relation_extraction()      
+        self.relation_extraction()      
         
         # # Write the output 
         self.write_output()     
@@ -499,4 +463,11 @@ class ATMiner(object):
 
 
     def eval(self):
+
+        # Load annotated file,  copy and remove all entites and relations
+
+        # NER: Iter document entities for both the annotated and predicted documents
+        #                 
+        # REL: 1) Predict based on original annotations
+        #      2) Predict base based on preicted entities
         pass

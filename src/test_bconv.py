@@ -93,30 +93,52 @@ print(type(coll) == bconv.doc.document.Document)
 
 print(coll)
 
-prev_end = 0
+# prev_end = 0
+# for doc in coll:
+#     for section in doc:
+#         print("Section:", section)
+#         for sentence in section:
+#             print("Sentence: ", sentence)
+#             # ent = bconv.Entity(None, sentence.text[0:1], [(0,1)], {"type": "some_type"}) 
+#             # sentence.add_entities([ent])
+
+#             sent_ents = [ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(sentence.iter_entities())]
+
+#             #print("Sent vars: ", vars(sentence))
+#             print("Sent start offset: ", sentence._start)
+#             print("Sent end offset: ", sentence._end)
+
+#             if prev_end == sentence._start:
+#                 print("GLEICH")
+#             else:
+#                 print("\n\nNOT-EQUAL\n\n")
+
+#             prev_end = sentence._end
+#             print("Sent text: ", sentence.text)
+#             print("Sent entities: ", sent_ents)
+#             # print()
+#             # if sent_ents:
+#             #     print(sentence.text[sent_ents[0][1]-sentence._start:sent_ents[0][2]-sentence._start] == sent_ents[0][3])
+#             #     print(sentence.text[sent_ents[0][1]-sentence._start:sent_ents[0][2]-sentence._start], sent_ents[0][3])
+
 for doc in coll:
-    for section in doc:
-        print("Section:", section)
-        for sentence in section:
-            print("Sentence: ", sentence)
-            # ent = bconv.Entity(None, sentence.text[0:1], [(0,1)], {"type": "some_type"}) 
-            # sentence.add_entities([ent])
+    print(f"Doc length: {len(list(doc.iter_entities()))}")
 
-            sent_ents = [ [e.id, e.start, e.end, e.text, e.metadata ] for e in list(sentence.iter_entities())]
+    # Delete all entities
+    for pa in doc:
+        for sent in pa:
+            sent.entities = []
 
-            #print("Sent vars: ", vars(sentence))
-            print("Sent start offset: ", sentence._start)
-            print("Sent end offset: ", sentence._end)
+    print(f"Doc length: {len(list(doc.iter_entities()))}")
 
-            if prev_end == sentence._start:
-                print("GLEICH")
-            else:
-                print("\n\nNOT-EQUAL\n\n")
+    # Add new entities
+    for pa in doc:
+        for sent in pa:
+            ent = bconv.Entity(None, sent.text[0:1], [(0,1)], {"type": "some_type"}) 
+            sent.add_entities([ent])
+            print("Added entity")
+            break
+        break
 
-            prev_end = sentence._end
-            print("Sent text: ", sentence.text)
-            print("Sent entities: ", sent_ents)
-            # print()
-            # if sent_ents:
-            #     print(sentence.text[sent_ents[0][1]-sentence._start:sent_ents[0][2]-sentence._start] == sent_ents[0][3])
-            #     print(sentence.text[sent_ents[0][1]-sentence._start:sent_ents[0][2]-sentence._start], sent_ents[0][3])
+    print(f"Doc length: {len(list(doc.iter_entities()))}")
+
