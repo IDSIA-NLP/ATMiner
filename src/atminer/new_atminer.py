@@ -76,14 +76,18 @@ class EntityRecognizer(object):
 
     def _init_oger_pipeline(self):
         conf = Router(settings=self.model_config["settings_path"])
+        self.logger.debug(f"OGER conf: {vars(conf)}")
+        
+        self.logger.debug(f"OGER conf: {vars(conf)}")
         # Initiziate oger pipline
-        self.oger_pipeline = PipelineServer(conf)
-
+        self.oger_pipeline = PipelineServer(conf, lazy=True)
+        self.logger.debug(f"OGER PipelineServer conf: {vars(self.oger_pipeline._conf)}")
 
     def _predict_with_oger(self, text):
         doc = self.oger_pipeline.load_one(StringIO(text), 'txt')
 
         self.oger_pipeline.process(doc)
+        self.oger_pipeline.postfilter(doc)
 
         entities = []
         for ent in doc.iter_entities():
