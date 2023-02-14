@@ -1,19 +1,18 @@
 input:
-  path: ../data/tmp/input/
-  file: PMC3082987
+  path: ../data/tmp/input_test/
+  file: PMC3082990
   extension: txt
   format: txt # bioc_json, txt
+  type: multiple # single, multiple
 
 output:
-  path: ../data/tmp/output/
+  path: ../data/tmp/output_test/
   # file: PMC3082967 Use input file name instead
   extension: bioc.json
   format: bioc_json # bioc_json
 
 tmp:
   path: ../data/tmp/
-  oger_input: oger_input/ 
-  oger_output: oger_output/ 
 
 ner:
   model: oger # oger

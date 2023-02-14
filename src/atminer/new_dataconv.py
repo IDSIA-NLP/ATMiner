@@ -8,7 +8,13 @@ RELATIONSHIPS = {
     "hasQualifier": [{"Qualifier", "Arthropod"}]
 }
 
-RELATIONSHIPS_LIST = sum(RELATIONSHIPS.values(), [])
+RELATIONSHIPS_TRAIT_VALUES = {
+    "hasTrait" : [{"Arthropod", "Trait"}],
+    "hasValue" : [{"Trait", "Value"}],
+}
+
+RELATIONSHIPS_LIST = sum(RELATIONSHIPS_TRAIT_VALUES.values(), [])
+
 
 class DataConverter():
     def __init__(self, logger, context_size=None):
@@ -91,8 +97,11 @@ class DataConverter():
             list: List of dictionaries of potential relations in LUKE format.
         """
         # Maximum length of documents
+
+        self.logger.debug(f"RELATIONSHIPS_LIST: {RELATIONSHIPS_LIST}")
+        
         if len(doc.text) >= 1000000:
-            print(f"ERROR: Document to long: len = {len(doc.text)}")
+            self.logger.error(f"ERROR: Document to long: len = {len(doc.text)}")
             return [], 0, 0
 
         contexts = self._get_contexts(doc, self.context_size)
