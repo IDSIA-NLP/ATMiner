@@ -23,6 +23,8 @@ from oger.ctrl.router import Router, PipelineServer
 
 from atminer.new_dataconv import DataConverter
 
+from seqeval.metrics import classification_report
+from seqeval.scheme import IOB2
 # os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 # --------------------------------------------------------------------------------------------
@@ -501,6 +503,67 @@ class ATMiner(object):
             self.write_output(input_file_path)     
 
 
+    # ----------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------
+    def _normalize_tag(self, tag):
+        if "Trait-" in tag:
+            return "-".join(tag.split("-")[:2])
+        else:
+            return tag
+        
+    def _conll_to_list(self, lines):
+        out_list = []
+        d = {
+            'tokens':[],
+            'tags':[]
+        }
+        for line in lines:
+            if not line.startswith("#"):
+                if not line.isspace():
+                    e = line.strip().split('\t')
+                    d["tokens"].append(e[0]) 
+                    #! Traits found by OGER has to been split e.g. Trait-Feeding -> Trait
+                    d["tags"].append(self._normalize_tag(e[-1]))
+                else:
+                    if d["tokens"] and d["tags"]:
+                        if d['tokens']:
+                            out_list.append(d)
+                            d = {
+                                'tokens':[],
+                                'tags':[]
+                            }
+        return out_list
+    
+
+    def _doc_to_entities(self):
+        fp = StringIO()
+        bconv.dump(self.doc, fp, fmt='conll', tagset='IOB', include_offsets=True)
+        lines = fp.getvalue().splitlines(True)
+        return self._conll_to_list(lines)
+
+
+    def _eval_ner(self, gold_ner_tokens_and_tags, pred_ner_tokens_and_tags):
+        gold_tokens = [e["tokens"] for e in gold_ner_tokens_and_tags]
+        pred_tokens = [e["tokens"] for e in pred_ner_tokens_and_tags]
+
+        if gold_tokens == pred_tokens:
+            gold_tags = [e["tags"] for e in gold_ner_tokens_and_tags]
+            pred_tags = [e["tags"] for e in pred_ner_tokens_and_tags]
+
+            cls_report_strict = classification_report(gold_tags, pred_tags, mode="strict" , scheme=IOB2)
+            ner_report = f"***** NER Report *****\nSTRICT:\n{cls_report_strict}"
+
+            cls_report_conlleval = classification_report(gold_tags, pred_tags, mode=None , scheme=IOB2)
+            ner_report += f"\n\nCONLLEVAL equivalent:\n{cls_report_conlleval}"
+            self.logger.debug(ner_report)
+
+        else:
+            raise ValueError("Gold tokens and pred tokens are not the equal.")
+
+        return ner_report
+
+    def _eval_rel_ext(self):
+        pass
 
     def eval(self):
 
@@ -536,7 +599,9 @@ class ATMiner(object):
                 self.doc_type = "document"
                 # Else the doc is already is already bconv document
 
-            # ------- Store gold annotations          
+            # ------- Store gold annotations
+
+            gold_ner_tokens_and_tags = self._doc_to_entities()
             gold_entities = {}
             for e in list(self.doc.iter_entities()):
                 # print(f"{e.id}, {e.start}, {e.end}, {e.text}, {e.metadata} ")
@@ -588,7 +653,7 @@ class ATMiner(object):
             self.logger.debug(f"Number of gold entities: {len(gold_entities)}")
             self.logger.debug(f"Number of pred relations with gold entities: {len(pred_relations_with_gold_entities)}")
             self.logger.debug(f"Sample of gold entities: {list(gold_entities.items())[0]}")
-            self.logger.debug(f"Sample of pred relations with gold entities: {pred_relations_with_gold_entities[0]}")
+            # self.logger.debug(f"Sample of pred relations with gold entities: {pred_relations_with_gold_entities[0]}")
             
             # ---------------------------------------------
             #           Relation with pred entities
@@ -620,9 +685,11 @@ class ATMiner(object):
             self.relation_extraction()  
 
             # ------- Store entities and relations
+            pred_ner_tokens_and_tags = self._doc_to_entities()
+
             pred_entities = {}
             for e in list(self.doc.iter_entities()):
-                print(f"{e.id}, {e.start}, {e.end}, {e.text}, {e.metadata} ")
+                # print(f"{e.id}, {e.start}, {e.end}, {e.text}, {e.metadata} ")
                 pred_entities[e.id] = {"id":e.id, "start": e.start, "end": e.end, "text": e.text, "type": e.metadata["type"], "annotator":e.metadata["annotator"]}
 
             pred_relations_with_pred_entities = []
@@ -639,14 +706,31 @@ class ATMiner(object):
             self.logger.debug(f"Number of pred entities: {len(pred_entities)}")
             self.logger.debug(f"Number of pred relations with pred entities: {len(pred_relations_with_pred_entities)}")
             self.logger.debug(f"Sample of pred entities: {list(pred_entities.items())[0]}")
-            self.logger.debug(f"Sample of pred relations with pred entities: {pred_relations_with_pred_entities[0]}")
+            # self.logger.debug(f"Sample of pred relations with pred entities: {pred_relations_with_pred_entities[0]}")
 
             # ------- Eval entities 
+            ner_report = self._eval_ner(gold_ner_tokens_and_tags, pred_ner_tokens_and_tags)
 
             # ------- Eval relation based on gold entities
 
-            # ------- Eval relation based on predicted entities
+            #! Here
+            #! 1. In GOLD: Check the all entities that are included in relations 
+            #!    label = relation_name
+            #!    identifier = [refid_1, refid_2]
+            #! 2. In Pred: Get a list of the correct matched entities (be careful STRICT or LENIENT )
+            #! 3. Get the labels for the correct entities
+            #! 4. Force all the other pred labels so that they wrong (none, null) be careful with none
 
+
+            # ------- Eval relation based on predicted entities
+            #! Here
+            #! 1. In GOLD: Check the all entities that are included in relations 
+            #!    label = relation_name
+            #!    identifier = [refid_1, refid_2]
+            #! 2. In Pred: Get a list of the correct matched entities (be careful STRICT or LENIENT )
+            #!      2.1 LENIENT means that (1) the offset can be shifted (2) in IOB form that BBI could be BII
+            #! 3. Get the labels for the correct entities
+            #! 4. Force all the other pred labels so that they wrong (none, null) be careful with none
 
             # ------- Write eval results and report
 
