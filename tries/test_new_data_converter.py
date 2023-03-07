@@ -4,7 +4,7 @@ sys.path.append(dirname(__file__))
 
 import json
 from loguru import logger
-from atminer.new_dataconv import DataConverter
+from src.atminer.data_converter import DataConverter
 import bconv
 
 coll = bconv.load('../data/tmp/input/awqipQxjojnzAwukvMo3ZZv9r3KW-zookeys.687.13164.bioc.json', fmt='bioc_json', byte_offsets=False)

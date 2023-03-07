@@ -43,7 +43,7 @@ def main(logger):
         _config(), 
         logger)
 
-    miner.run()
+    miner.eval()
 
 
 
@@ -54,7 +54,7 @@ def main(logger):
 if __name__ == '__main__':
 
     # Setup logger
-    logger.add("../../logs/run_atm.log", rotation="1 MB")
+    logger.add("../logs/run_atm.log", rotation="1 MB", retention=5, level=_config()["logger"]["level"])
     logger.info(f'Start ...')
 
    # Run main

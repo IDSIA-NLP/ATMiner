@@ -1,78 +1,68 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-Description: ...
-Author: ...
-Month Year
-"""
-
 import itertools
-import spacy
+
+
+RELATIONSHIPS = {
+    "hasTrait" : [{"Arthropod", "Trait"}],
+    "hasValue" : [{"Trait", "Value"}],
+    "hasContinuation": [{"Arthropod", "Arthropod"},{"Trait", "Trait"}, {"Value", "Value"}, {"Qualifier", "Qualifier"}],
+    "hasQualifier": [{"Qualifier", "Arthropod"}]
+}
+
+RELATIONSHIPS_TRAIT_VALUES = {
+    "hasTrait" : [{"Arthropod", "Trait"}],
+    "hasValue" : [{"Trait", "Value"}],
+}
+
+RELATIONSHIPS_LIST = sum(RELATIONSHIPS_TRAIT_VALUES.values(), [])
+
 
 class DataConverter():
-    def __init__(self, logger, nlp_type, nlp_model, context_size=None):
+    def __init__(self, logger, context_size=None):
         
         self.logger = logger
         self.context_size = context_size
         
-        if nlp_type == "spacy":
-            self.nlp = spacy.load(nlp_model)
+    def _get_luke_relation(self, relation_type=None, text=None, head_start=None, head_end=None, tail_start=None, tail_end=None, 
+        head_type=None, head_id=None, tail_type=None, tail_id=None, context_start_char=None, context_end_char=None, head_text=None, tail_text=None):
+        """Creates a relation formatted for the LUKE model.
+        """
+        
+        relation = dict()
+        relation["text"] = text
+        relation['relation'] = relation_type
+
+        relation['context_start_char'] = context_start_char
+        relation['context_end_char'] = context_end_char
+
+        # Sort so that head is first entity in text
+        if head_start < tail_start:                  
+            relation['head'] = [head_start, head_end]
+            relation['tail'] = [tail_start, tail_end]
+            relation['head_type'] = head_type
+            relation['head_id'] = head_id
+
+            relation['tail_type'] = tail_type
+            relation['tail_id'] = tail_id
+            
+            relation['head_text'] = head_text
+            relation['tail_text'] = tail_text
+
         else:
-            self.logger.error("NLP model is not supported.")
-            raise ValueError("NLP model is not supported.")
+            relation['tail'] = [head_start, head_end]
+            relation['head'] = [tail_start, tail_end]
+            relation['tail_type'] = head_type
+            relation['tail_id'] = head_id
+
+            relation['head_type'] = tail_type
+            relation['head_id'] = tail_id
+            
+            relation['tail_text'] = head_text
+            relation['head_text'] = tail_text
+
         
 
-    def _context_indices(self, i, context_indices):
-        """Determines the start and end char index of the context in which i is located.
         
-        Example:
-            Example of context_indices: [[0,5],[6,13],[14,45],[46,67]]
-
-        Args:
-            i (int): A char index
-            context_indices (list): A list of lists with start and end char indices
-
-        Returns:
-            list: The start and end char index i is in. 
-        """
-        indices = []
-        for idx, c in enumerate(context_indices):
-            if c[0] <= i <= c[1]:
-                indices.append(idx)
-        return indices
-
-
-    def _start_char_anno(self, locations, psg_offset):
-        """Get the start char of a BioC annotation
-
-        Args:
-            locations (list): List of offsets
-            psg_offset (int): Passage offset
-
-        Returns:
-            int: Start char index of annotation
-        """
-        s = 999999999999
-        for l in locations:
-            s = min(l['offset'] - psg_offset, s)
-        return s
-
-
-    def _end_char_anno(self, locations, psg_offset):
-        """Get the end char of a BioC annotation
-
-        Args:
-            locations (list): List of offsets
-            psg_offset (int): Passage offset
-
-        Returns:
-            int: End char index of annotation
-        """
-        e = 0
-        for l in locations:
-            e = max((l['offset'] + l['length']) - psg_offset, e)
-        return e
+        return relation
 
 
     def _create_n_grams(self, list_obj, n=3):
@@ -83,54 +73,40 @@ class DataConverter():
         return [list_obj[i:i+n] for i in range(len(list_obj)-n+1)]
 
 
-    def _get_luke_relation(self, relation_type, text, head_start, head_end, tail_start, tail_end, 
-     head_type, head_id, tail_type, tail_id, context_start_char, context_end_char):
-        """Creates a relation formatted for the LUKE model.
-        """
-        relation = dict()
-        relation["text"] = text                  
-        relation['head'] = [head_start, head_end]
-        relation['tail'] = [tail_start, tail_end]
-        relation['relation'] = relation_type
-
-        relation['head_type'] = head_type
-        relation['head_id'] = head_id
-
-        relation['tail_type'] = tail_type
-        relation['tail_id'] = tail_id
-
-        relation['context_start_char'] = context_start_char
-        relation['context_end_char'] = context_end_char
-        return relation
-
-    def _get_contexts(self, text, context_size):
+    def _get_contexts(self, doc, context_size):
         """Get sliding contexts windows with **context_size** number of sentences. 
 
         Args:
-            text (string): The text that gets splits into sliding context windows.
+            doc (bconv.doc.document.Document): Instance of bconv Document.
             context_size (int): The number of sentences a context window should contain.
 
         Returns:
             list: A list of list of context. A context contains n consecutive sentences. 
         """
-        doc = self.nlp(text)
+        sents = []
+        
+        for section in doc:
+            for sentence in section:
+                sents.append(sentence)
 
-        # sent_indices = [[sent.start_char, sent.end_char] for sent in doc.sents]
-        # sentences = [str(sent).strip() for sent in doc.sents]
-
-        sents = [sent for sent in doc.sents]
         ngrams_sents = self._create_n_grams(sents, n=context_size)
+
         contexts = [{
-            'start_char': ngram_sents[0].start_char, 
-            'end_char': ngram_sents[-1].end_char, 
-            'text': "".join([str(sent).strip() for sent in ngram_sents]),
-            'entities': [],
+            'start_char': ngram_sents[0]._start, 
+            'end_char': ngram_sents[-1]._end, 
+            'text': "".join([sent.text for sent in ngram_sents]),
+            #! Change to e.metadata["ent_type"] for use with ATMiner
+            'entities': [ {"id": e.id, "start_char": e.start, "end_char": e.end, "type": e.metadata["type"], "text":e.text } for sent in ngram_sents for e in list(sent.iter_entities())],
         } for ngram_sents in ngrams_sents]
 
         return contexts
 
 
-    def _get_LUKE_relations(self, passage):
+    #!
+    #! Change to generator and yield a single new luke datapoint
+    #!
+
+    def to_luke(self, doc):
         """Get potential relations in LUKE format. A relation exists between two annotations in the same context window.
 
         Args:
@@ -140,100 +116,58 @@ class DataConverter():
             list: List of dictionaries of potential relations in LUKE format.
         """
         # Maximum length of documents
-        if len(passage["text"]) >= 1000000:
-            print(f"ERROR: Document to long: len = {len(passage['text'])}")
+
+        self.logger.debug(f"RELATIONSHIPS_LIST: {RELATIONSHIPS_LIST}")
+        
+        if len(doc.text) >= 1000000:
+            self.logger.error(f"ERROR: Document to long: len = {len(doc.text)}")
             return [], 0, 0
 
-        contexts = self._get_contexts(passage["text"], self.context_size)
-        context_indices = [[context["start_char"], context["end_char"]] for context in contexts]
-
-        # get for each context the corresponding entities
-        tmp_entities = []
-        for anno in passage["annotations"]:
-            anno_start_char = self._start_char_anno(anno['locations'], passage['offset'])
-            anno_end_char = self._end_char_anno(anno['locations'], passage['offset'])
-
-            anno_context_idx_start = self._context_indices(anno_start_char, context_indices)
-            anno_context_idx_end = self._context_indices(anno_end_char, context_indices)
-            anno_context_idx = list(set(anno_context_idx_start) & set(anno_context_idx_end))
-
-            tmp_entities.append({
-                'id': anno["id"],
-                'start_char': anno_start_char,
-                'end_char': anno_end_char,
-                'type': anno['infons']['type']
-            })
-            
-            for context_idx in anno_context_idx:
-                contexts[context_idx]['entities'].append(anno['id'])
+        contexts = self._get_contexts(doc, self.context_size)
 
 
-        relations = []
+        luke_input_data = []
         for context in contexts:
 
-            for ent_ids in itertools.combinations(context["entities"], 2):
+            for entity_tuple in itertools.combinations(context["entities"], 2):
 
-                # Entities = the combination of Arthropod and Trait
-                ent_0_type = tmp_entities[ent_ids[0]]["type"].split("-")[0]
-                ent_1_type = tmp_entities[ent_ids[1]]["type"].split("-")[0]
-                if frozenset([ent_0_type, ent_1_type]) == frozenset(["Arthropod", "Trait"]):
+                # Entities = the combination of e.g. Arthropod and Trait
+                # O = Head , 1 = Tail but the order doesn't matter (just for clarity)
+                ent_0_type = entity_tuple[0]["type"].split("-")[0] 
+                ent_1_type = entity_tuple[1]["type"].split("-")[0]
 
-                    relation = self._get_luke_relation( 
-                        "undefined", 
-                        context["text"] , 
-                        tmp_entities[ent_ids[0]]['start_char']-context['start_char'], 
-                        tmp_entities[ent_ids[0]]['end_char']-context['start_char'],
+                if any({ent_0_type, ent_1_type} == rel for rel in RELATIONSHIPS_LIST):
+                    
+                    # sanity check
+                    start_ent_0 = entity_tuple[0]['start_char']-context['start_char']
+                    end_ent_0 = entity_tuple[0]['end_char']-context['start_char']
+                    start_ent_1 = entity_tuple[1]['start_char']-context['start_char']
+                    end_ent_1 = entity_tuple[1]['end_char']-context['start_char']
 
-                        tmp_entities[ent_ids[1]]['start_char']-context['start_char'], 
-                        tmp_entities[ent_ids[1]]['end_char']-context['start_char'],
-                        
-                        tmp_entities[ent_ids[0]]["type"],
-                        tmp_entities[ent_ids[0]]['id'],
-                        tmp_entities[ent_ids[1]]["type"],
-                        tmp_entities[ent_ids[1]]['id'],
-                        
-                        context['start_char'] + passage['offset'],
-                        context['end_char'] + passage['offset']
+                    assert entity_tuple[0]['text'] == context['text'][start_ent_0:end_ent_0], f"Entity 0 text doesn't match offsets: {entity_tuple[0]['text']} != {context['text'][start_ent_0:end_ent_0]}"
+                    assert entity_tuple[1]['text'] == context['text'][start_ent_1:end_ent_1], f"Entity 1 text doesn't match offsets: {entity_tuple[1]['text']} != {context['text'][start_ent_1:end_ent_1]}"
+                   
+                    
+                    luke_input = self._get_luke_relation( 
+                        relation_type="undefined", 
+                        text=context["text"] , 
+
+                        head_start=start_ent_0,
+                        head_end=end_ent_0,
+                        tail_start=start_ent_1, 
+                        tail_end=end_ent_1,
+
+                        head_type=entity_tuple[0]["type"],
+                        head_id=entity_tuple[0]['id'],
+                        tail_type=entity_tuple[1]["type"],
+                        tail_id=entity_tuple[1]['id'],
+
+                        context_start_char=context['start_char'] ,
+                        context_end_char=context['end_char'],
+
+                        head_text=entity_tuple[0]["text"],
+                        tail_text=entity_tuple[1]["text"],
                         )
-                    relations.append(relation)
+                    luke_input_data.append(luke_input)
                 
-        return relations
-
-
-    def bioc_to_luke(self, data):
-        """Converts a BioC JSON file with annotations into a list of relations properly formatted for the LUKE model.
-
-        Args:
-            data (dictionary): BioC JSON dictionary
-
-        Returns:
-            list: List of LUKE relations for each document in the BioC JSON dict.
-        """
-        out_data = []
-        for doc in data['documents']:
-
-            relations = []
-            for passage in doc["passages"]:
-                relations +=  self._get_LUKE_relations(passage)
-                 
-            out_data.append({
-                "id": doc["id"],
-                "relations": relations
-            })
-        
-        #* TEST >>>>>>>>>>>>>
-        import json
-        with open("./test_dv.json", "w", encoding="utf-8") as f:
-            json.dump(out_data, f, indent=4, sort_keys=True)
-        #* <<<<<<<<<<<<<<< TEST 
-
-        return out_data  
-
-    def bioc_to_tsv(self):
-        pass
-    
-    def bioc_to_txt(self):
-        pass
-    
-    def xml_to_txt(self):
-        pass
+        return luke_input_data
