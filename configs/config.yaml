@@ -44,7 +44,7 @@ nlp:
   model: en_core_web_sm
 
 context:
-  mode: multiple # single, multiple 
+  mode: single # single, multiple 
   size: 2
 
 models:

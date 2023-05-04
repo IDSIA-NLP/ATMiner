@@ -7,10 +7,10 @@ input:
   type: single # single, multiple
 
 output:
-  path: ../data/tmp/output_test/
+  path: ../data/tmp/output_eval/
   # file: PMC3082967 Use input file name instead
   extension: bioc.json
-  format: bioc_json # bioc_json
+  format: pubanno_json.tgz # bioc_json, pubanno_json.tgz
 
 tmp:
   path: ../data/tmp/
@@ -45,10 +45,11 @@ nlp:
 
 context:
   mode: multiple # single, multiple 
-  size: 2
+  size: 3
+
 
 models:
   path: ../data/resources/models/
 
 logger:
-  level: TRACE #  CRITICAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, TRACE  
+  level: DEBUG #  CRITICAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, TRACE  
