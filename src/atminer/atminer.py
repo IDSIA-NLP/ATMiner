@@ -7,9 +7,7 @@ Author: ...
 Month Year
 """
 
-import subprocess
 import json 
-import os
 from io import StringIO
 import uuid
 import pandas as pd
@@ -19,11 +17,12 @@ import time
 
 
 import bconv
-from transformers import LukeTokenizer, LukeForEntityPairClassification, pipeline, AutoConfig, AutoTokenizer, AutoModelForTokenClassification
-from oger.ctrl.router import Router, PipelineServer
 
 
-from atminer.data_converter import DataConverter
+
+from atminer.entity_recognizer import EntityRecognizer
+from atminer.entity_normalizer import EntityNormalizer
+from atminer.relation_extractor import RelationExtractor
 
 from seqeval.metrics import classification_report as seqeval_cls_report
 from seqeval.scheme import IOB2
@@ -42,360 +41,7 @@ def list_get(l, idx, default=None):
         r = default
     return r
 
-class ATEntity(object):
-    """ A class to represent an AT Entity.
 
-    Args:
-        text (str): The text of the entity.
-        spans (list): A list of tuples containing the start and end character offsets of the entity.
-        ent_type (str): The type of the entity e.g. "Arthropod".
-        preferred_form (str, optional): The preferred form of the entity. Defaults to "".
-        resource (str, optional): The resource the entity was extracted from. Defaults to "".
-        native_id (str, optional): The native id of the entity. Defaults to "".
-        cui (str, optional): The CUI of the entity. Defaults to "".
-        extra_info (dict, optional): A dictionary containing extra information about the entity. Defaults to None.
-    """
-    def __init__(self, text, spans, ent_type, preferred_form="", resource="", native_id="", cui="", extra_info=None):
-        """Initialize the ATEntity object."""
-        self.id_ = uuid.uuid4().hex
-        self.text = text
-        self.spans = sorted((start, end) for start, end in spans)
-        
-        self.metadata = {}
-        self.metadata["type"] = ent_type
-        self.metadata["preferred_form"]  = preferred_form
-        self.metadata["resource"]  = resource
-        self.metadata["native_id"]  = native_id
-        self.metadata["cui"]  = cui
-
-        if type(extra_info) == dict or extra_info == None:
-            if not extra_info == None:
-                if not set(extra_info.keys()) & set(self.metadata.keys()):
-                    self.metadata.update(extra_info)
-                else:
-                    raise ValueError("Extra-info cannot have overlapping keys with metadata.")
-        else:
-            raise ValueError("Extra-info must be type of dict or None.")
-
-
-    def shift_offset(self, shift_by):
-        """Shift the offsets of the entity by a given number of characters.
-        
-        Args:
-            shift_by (int): The number of characters to shift the offsets by.
-        """
-        
-        self.start += shift_by
-        self.end += shift_by
-
-
-    def update_metadata(self, extra_info):
-        """Update the metadata of the entity with extra information.
-        
-        Args:
-            extra_info (dict): A dictionary containing extra information about the entity.
-        """
-
-        if type(extra_info) == dict:
-            if not set(extra_info.keys()) & set(self.metadata.keys()):
-                self.metadata.update(extra_info)
-            else:
-                raise ValueError("Extra-info cannot have overlapping keys with metadata.")
-        else:
-            raise ValueError("Extra-info must be type of dict")
-
-    
-# --------------------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------------------
-# Use OGEr as the basemodel for the EntityRecognizer
-class EntityRecognizer(object):
-    """ A class to represent an Entity Recognizer.
-
-    Args:
-        model_name (str, optional): The name of the model to use. Defaults to "oger".
-        model_version (str, optional): The version of the model to use. Defaults to None.
-        model_config (dict, optional): A dictionary containing the configuration of the Entity Recognizer. Defaults to None.
-        logger (loguru.logger, optional): A logger object. Defaults to None.
-    """
-    def __init__(self, model_name="oger", model_path=None, model_version=None, model_config=None, logger=None, local_files_only=None, max_seq_length=None ):
-        
-        self.model_name = model_name
-        self.model_version = model_version
-        self.model_config = model_config
-        self.model_path = model_path
-
-        self.max_seq_length = max_seq_length
-        self.local_files_only = local_files_only
-
-        self.logger = logger
-        
-        self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
-        if self.model_name == "oger":
-            self._init_oger_pipeline()
-        elif self.model_name == "base_transformer":
-            self._init_base_transformer_pipeline()
-
-
-    def _init_base_transformer_pipeline(self):
-        """Initialize a HuggingFace transformer pipeline for token classification."""
-        model_config = AutoConfig.from_pretrained(self.model_path)
-        
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, config=model_config,  local_files_only=True, model_max_length=self.max_seq_length)
-        self.model = AutoModelForTokenClassification.from_pretrained(self.model_path, config=model_config, local_files_only=True)
-
-        #! REMOVE  ignore_labels=[]   ...when the bug is fixed
-        self.base_transformer_pipeline = pipeline(task='ner', model=self.model, tokenizer=self.tokenizer, aggregation_strategy='simple')
-       
-        
-    def _predict_with_base_transformer(self, text):
-        """Create the NER prediction with a HuggingFace transformer.
-
-        Args:
-            text (str): The text to predict entities for.
-
-        Returns:
-            list: A list of ATEntity objects.       
-        """        
-        predicted_entities = self.base_transformer_pipeline(text)
-
-        #! TODO: Normalize the entities
-
-        entities = []
-        for ent in predicted_entities:
-
-        #if not ent["entity_group"] == "O":
-        #    assert ent["word"].lower() in text[ent["start"]:ent["end"]].lower(), f"The predicted entity does not match the text: {ent['word']} vs {text[ent['start']:ent['end']]}"
-
-            entities.append(ATEntity(
-                text[ent["start"]:ent["end"]],
-                [(int(ent["start"]),int(ent["end"]))],
-                ent["entity_group"],
-                extra_info={
-                    "annotator": f"{self.model_name}-{self.model_version}",
-                    "score": float(ent["score"])
-                }
-            ))
-        return entities
-
-
-    def _init_oger_pipeline(self):
-        """Initialize the OGER pipeline."""
-
-        conf = Router(settings=self.model_config["settings_path"])
-        self.logger.debug(f"OGER conf: {vars(conf)}")
-        
-        self.logger.debug(f"OGER conf: {vars(conf)}")
-        # Initiziate oger pipline
-        self.oger_pipeline = PipelineServer(conf, lazy=True)
-        self.logger.debug(f"OGER PipelineServer conf: {vars(self.oger_pipeline._conf)}")
-
-
-    def _predict_with_oger(self, text):
-        """Create the NER prediction with OGER.
-
-        Args:
-            text (str): The text to predict entities for.
-
-        Returns:
-            list: A list of ATEntity objects.       
-        """        
-        doc = self.oger_pipeline.load_one(StringIO(text), 'txt')
-
-        self.oger_pipeline.process(doc)
-        self.oger_pipeline.postfilter(doc)
-
-        entities = []
-        for ent in doc.iter_entities():
-            entities.append(ATEntity(
-                ent.text,
-                [(ent.start,ent.end)],
-                ent.type,
-                preferred_form = ent.pref, 
-                resource = ent.db, 
-                native_id = ent.cid, 
-                cui = ent.cui,
-                extra_info={"annotator": f"{self.model_name}-{self.model_version}"}
-            ))
-        return entities
-
-
-    def predict(self, text):
-        """Create the NER prediction.
-
-        Args:
-            text (str): The text to predict entities for.
-
-        Raises:
-            ValueError: If the model name is not supported.
-
-        Returns:
-            list: A list of ATEntity objects.
-        """
-        if self.model_name == "oger":
-                return self._predict_with_oger(text)
-        elif self.model_name == "base_transformer":
-                return self._predict_with_base_transformer(text)
-        
-        else:
-            self.logger.error(f"NER model {self.model_name} not supported.")
-            raise ValueError("NER model not supported.")
-
-
-
-# --------------------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------------------
-# Use LUKE as the basemodel for the EntityRecognizer
-class RelationExtractor(object):
-    """A class to represent a Relation Extractor.
-
-    Args:
-        model_name (str, optional): The name of the model to use. Defaults to "luke".
-        model_path (str, optional): The path to the model. Defaults to None.
-        model_version (str, optional): The version of the model to use. Defaults to None.
-        logger (loguru.logger, optional): A logger object. Defaults to None.
-        context_mode (str, optional): The context mode to use. Defaults to None.
-        context_size (int, optional): The context size to use. Defaults to None.
-        local_files_only (bool, optional): Whether to load the model from local files only. Defaults to None.
-        max_seq_length (int, optional): The maximum sequence length of the model. Defaults to None.
-    """    
-    def __init__(self, model_name="luke",model_path=None, model_version=None, logger=None, context_mode=None, context_size=None, local_files_only=None, max_seq_length=None ):
-        self.model_name = model_name
-        self.model_version = model_version
-        self.model_path = model_path
-        self.logger = logger
-        self.local_files_only = local_files_only
-        self.max_seq_length = max_seq_length
-        self.context = context_mode
-        if self.context == "single":
-            self.context_size = 1
-        else:
-            self.context_size =  context_size
-
-        self.data_converter = DataConverter(logger, context_size = self.context_size)
-
-        self.output_format = None
-
-        self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
-        if model_name == "luke":
-            self._init_luke_model()
-
-
-    def _format_relation(self, rel_id, head_role, head_id, tail_role, tail_id, rel_type, context_start_char, context_end_char):
-        """Format the relation as a dictionary.
-
-        Args:
-            rel_id (int): The id of the relation.
-            head_role (str): The role of the head entity.
-            head_id (str):  The id of the head entity.
-            tail_role (str): The role of the tail entity.
-            tail_id (str): The id of the tail entity.
-            rel_type (str): The type of the relation.
-            context_start_char (int): The index of the start character of the context.
-            context_end_char (int): The index of the end character of the context.
-
-        Returns:
-            dict: A dictionary containing the relation.
-        """        
-        relation = dict()
-        relation["id"] = rel_id
-        relation["node"] = ((head_id,head_role),(tail_id, tail_role))
-        relation["metadata"] = {
-            "type": rel_type,
-            "context_start_char":context_start_char,
-            "context_end_char":context_end_char,
-            "annotator": f"{self.model_name}-{self.model_version}"
-        }
-        return relation
-
-
-    def _init_luke_model(self):
-        """Initialize the LUKE model."""
-        if self.local_files_only:
-            self.logger.info("[Rel. Ext.] Load model from local files.")
-            self.model = LukeForEntityPairClassification.from_pretrained(self.model_path, local_files_only=True)
-            self.tokenizer = LukeTokenizer.from_pretrained(self.model_path)
-        else:
-            self.logger.info("[Rel. Ext.] Load model from HuggingFace model hub.")
-            self.logger.error(f"No model in Huggingface cloud so far ")
-            raise ValueError("No local model indicated.")
-
-        self.model = self.model.to(self.device)
-
-
-    def _predict_with_luke(self, luke_data):
-        """Create the relation prediction with LUKE.
-
-        Args:
-            luke_data (list): A list of dictionaries containing the article formatted for LUKE.
-
-        Returns:    
-            list: A list of dictionaries containing the relations.
-        """
-        relations = list()
-        for rel_idx, relation_dict in enumerate(luke_data):
-            try:
-                entity_spans = [ 
-                    tuple(relation_dict["head"]),
-                    tuple(relation_dict["tail"])
-                ]
-                self.logger.trace(f"Rel. Ext. Input text: {relation_dict['text']}")
-                inputs = self.tokenizer(relation_dict["text"], entity_spans=entity_spans, return_tensors="pt", truncation=True, padding="max_length", max_length=self.max_seq_length).to(self.device)
-                outputs = self.model(**inputs)
-                logits = outputs.logits
-                predicted_class_idx = int(logits[0].argmax())
-                pred_rel = self.model.config.id2label[predicted_class_idx]
-                
-                rel = {
-                    "id": rel_idx,
-                    "head_role": relation_dict["head_type"],
-                    "head_id": relation_dict["head_id"],
-                    "tail_role": relation_dict["tail_type"],
-                    "tail_id": relation_dict["tail_id"],
-                    "type": pred_rel,
-                    "context_start_char": relation_dict["context_start_char"],
-                    "context_end_char": relation_dict["context_end_char"],
-                    "context_size": self.context_size,
-                    "annotator": f"{self.model_name}-{self.model_version}"
-                }
-
-                relations.append(rel)
-            
-            except:
-                #! 1. Even if error you can return an none relation
-                #! 2. Count the amount of errors
-                self.logger.error(f"Relation Extraction failed for relation_dict: {relation_dict}")
-        
-        return relations
-
-
-    def predict(self, document):
-        """Predict the relations for a given document.
-
-        Args:
-            document (bconv.doc.document.Document): The document to predict the relations for.
-
-        Raises:
-            ValueError: If the model name is not supported.
-
-        Returns:
-            list: A list of dictionaries containing the relations.
-        """        
-        if self.model_name == "luke":
-            luke_data = self.data_converter.to_luke(document)
-            
-            #! REMOVE AFTER TESTING  >>>>>>>>>>>>
-            # luke_data = luke_data[:30]
-            #! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            self.logger.debug(f"Start LUKE relation classification for {len(luke_data)} potential relations.")
-            pred_relations = self._predict_with_luke(luke_data)
-
-        else:
-            self.logger.error(f"Relation extraction {self.model_name} model not supported.")
-            raise ValueError("Relation extraction not supported.")
-
-        return pred_relations
 
 # --------------------------------------------------------------------------------------------
 
@@ -412,6 +58,7 @@ class ATMiner(object):
 
         self.config = config
         self.logger = logger
+        self.apply_entity_normalization = self.config['nen']['apply_entity_normalization']
 
         self.rel_extractor = RelationExtractor(
             model_name = self.config['rel_ext']['model'], 
@@ -421,17 +68,24 @@ class ATMiner(object):
             logger=logger,
             context_mode=self.config['context']['mode'],
             context_size=self.config['context']['size'],
-            max_seq_length=self.config['rel_ext']['max_seq_length'])
+            max_seq_length=self.config['rel_ext']['max_seq_length'],
+            tag_entities=self.config['rel_ext']['tag_entities']
+            )
 
         self.ent_recognizer = EntityRecognizer(
             model_name = self.config['ner']['model'],
-            model_version = self.config['rel_ext']['version'],
+            model_version = self.config['ner']['version'],
             model_path = self.config['models']['path'] + self.config['ner']['model_path'],
             local_files_only = self.config['ner']['from_local'],
             max_seq_length=self.config['ner']['max_seq_length'],
             model_config= self.config['ner'],
             logger=logger)
 
+        self.ent_normalizer = EntityNormalizer(
+            model_name = config['nen']['model'],
+            model_version = config['nen']['version'],
+            model_config = config['nen'],
+            logger=logger)
 
         self.input = None
         self.doc = None
@@ -478,9 +132,21 @@ class ATMiner(object):
                 # Add entities to the sentence.
                 new_entities = []
                 for entity in entities:
+                    if self.apply_entity_normalization:
+                        # Predict the normalized entity
+                        normalized_entity = self.ent_normalizer.predict(entity.text, entity.ent_type)
+                        # Update the entity
+                        if normalized_entity:
+                            entity.preferred_form = normalized_entity['preferred_form']
+                            entity.resource = normalized_entity['resource']
+                            entity.native_id = normalized_entity['native_id']
+                            entity.cui = normalized_entity['cui']
+                            entity.metadata.update({'nen_annotator': normalized_entity['extra_info']['annotator']})
+                       
                     # Note: bconv checks if entity text match with offset selected sentence text
                     self.logger.trace(f"Entity: {vars(entity)}")
                     self.logger.trace(f"Spans: {entity.spans}")
+
                     new_entities.append(bconv.Entity(entity.id_, entity.text, entity.spans, entity.metadata))
                 # Append entites to document sentence
                 if new_entities:

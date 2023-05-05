@@ -28,7 +28,7 @@ class DataConverter():
         """
         
         relation = dict()
-        relation["text"] = text
+        relation["sentence"] = text
         relation['relation'] = relation_type
 
         relation['context_start_char'] = context_start_char
