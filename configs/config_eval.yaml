@@ -1,16 +1,16 @@
 input:
-  path: ../data/tmp/input_eval/rmwaterhouse/
+  path: ../data/tmp/input_eval_test_data/rmwaterhouse/
   file: aac2zSGIXr5fjZvJjneWFa8N9jFK-zookeys.110.59530.bioc
   #file: awqipQxjojnzAwukvMo3ZZv9r3KW-zookeys.687.13164.bioc
   extension: json
   format: bioc_json # bioc_json, txt
-  type: single # single, multiple
+  type: multiple # single, multiple
 
 output:
-  path: ../data/tmp/output_eval/
+  path: ../data/tmp/output_eval_test_data/
   # file: PMC3082967 Use input file name instead
   extension: bioc.json
-  format: pubanno_json.tgz # bioc_json, pubanno_json.tgz
+  format: bioc_json # bioc_json, pubanno_json.tgz
 
 tmp:
   path: ../data/tmp/
@@ -22,6 +22,7 @@ ner:
   model_path: 2022-11-10-18-38_NER_dmis-lab-biobert-large-cased-v1.1_test_model
   from_local: True
   max_seq_length: 512
+  aggregation_strategy: average #simple, first, average, max
   
   # OGER configs
   # model: oger # oger
@@ -31,22 +32,31 @@ ner:
   # from_local: Null
   # max_seq_length: Null
 
+# Named Entity Normalization
+nen:
+  #OGER configs
+  apply_entity_normalization: True
+  model: oger 
+  version: v1.0.1
+  settings_path: ../configs/oger_settings_nen.ini # Don't apply find value postfilter
+  merge_strategy: first
+
+# Relation Extraction
 rel_ext:
   model: luke # luke
   version: v1.0.1
-  model_path: 2023-03-03-16-04_RE_studio-ousia-luke-large_test_model_ml-512 # from the cloud "studio-ousia/luke-large-finetuned-tacred"
+  model_path: 2023-04-16-12-48_RE_studio-ousia-luke-large_luke-eval-data-v2_context-size-6_tagged-entities_none_class_balanced_ml-512_lr-0.00_bs-16_ep-2 # from the cloud "studio-ousia/luke-large-finetuned-tacred"
   from_local: True
-  prune_mode: sorted # random, sorted, ...
+  prune_mode: random # random, ...
   max_seq_length: 512
+  tag_entities: True
 
 nlp:
   type: spacy
   model: en_core_web_sm
 
 context:
-  mode: multiple # single, multiple 
-  size: 3
-
+  size: 2
 
 models:
   path: ../data/resources/models/

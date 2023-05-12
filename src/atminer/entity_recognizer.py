@@ -59,7 +59,8 @@ class EntityRecognizer(object):
         self.model = AutoModelForTokenClassification.from_pretrained(self.model_path, config=model_config, local_files_only=True)
 
         #! REMOVE  ignore_labels=[]   ...when the bug is fixed
-        self.base_transformer_pipeline = pipeline(task='ner', model=self.model, tokenizer=self.tokenizer, aggregation_strategy='simple')
+        #! Aggregation strategy "simple" will allow that subword tokens are predicted with different labels
+        self.base_transformer_pipeline = pipeline(task='ner', model=self.model, tokenizer=self.tokenizer, aggregation_strategy=self.model_config["aggregation_strategy"])
        
         
     def _predict_with_base_transformer(self, text):
@@ -87,7 +88,7 @@ class EntityRecognizer(object):
                 ent["entity_group"],
                 extra_info={
                     "annotator": f"{self.model_name}-{self.model_version}",
-                    "score": float(ent["score"])
+                    "probability_score": float(ent["score"])
                 }
             ))
         return entities

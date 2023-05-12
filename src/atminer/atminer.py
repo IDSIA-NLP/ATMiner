@@ -9,6 +9,7 @@ Month Year
 
 import json 
 from io import StringIO
+import os
 import uuid
 import pandas as pd
 import torch 
@@ -17,7 +18,6 @@ import time
 
 
 import bconv
-
 
 
 from atminer.entity_recognizer import EntityRecognizer
@@ -60,13 +60,14 @@ class ATMiner(object):
         self.logger = logger
         self.apply_entity_normalization = self.config['nen']['apply_entity_normalization']
 
+        self.run_id = datetime.now().strftime('%Y%m%d-%H%M%S%f')
+
         self.rel_extractor = RelationExtractor(
             model_name = self.config['rel_ext']['model'], 
             model_version = self.config['rel_ext']['version'], 
             model_path = self.config['models']['path'] + self.config['rel_ext']['model_path'],
             local_files_only = self.config['rel_ext']['from_local'],
             logger=logger,
-            context_mode=self.config['context']['mode'],
             context_size=self.config['context']['size'],
             max_seq_length=self.config['rel_ext']['max_seq_length'],
             tag_entities=self.config['rel_ext']['tag_entities']
@@ -258,7 +259,8 @@ class ATMiner(object):
             "context_start_char": rel["context_start_char"],
             "context_end_char": rel["context_end_char"],
             "context_size": rel["context_size"],
-            "annotator": rel["annotator"]
+            "annotator": rel["annotator"],
+            "probability_score": rel["probability_score"]
         }
         return relation
 
@@ -395,14 +397,19 @@ class ATMiner(object):
         """         
         if self.config["output"]["format"] in self.input_formats:
 
+            # Create the output path /output_path/run-id/
+            output_path = f'{self.config["output"]["path"]}run-{self.run_id}/'
+            if not os.path.exists(output_path):
+                os.makedirs(output_path)
+
             if self.config["input"]["type"] == "single":
-                #file_path = f'{self.config["output"]["path"]}{self.config["input"]["file"]}.{self.config["output"]["extension"]}'
+                #file_path = f'{output_path}{self.config["input"]["file"]}.{self.config["output"]["extension"]}'
                 #! Debugging REMOVE !!! >>>>>
-                file_path = f'{self.config["output"]["path"]}{self.config["input"]["file"]}--size-{self.config["context"]["size"]}.{self.config["output"]["extension"]}'
+                file_path = f'{output_path}{self.config["input"]["file"]}--size-{self.config["context"]["size"]}.{self.config["output"]["extension"]}'
                 #! <<<<<<<<<<<<<<<<<<<<<<<<<
             elif self.config["input"]["type"] == "multiple":
                 input_file_name = ".".join(input_file_path.split("/")[-1].split(".")[:-1])
-                file_path = f'{self.config["output"]["path"]}{input_file_name}.{self.config["output"]["extension"]}'
+                file_path = f'{output_path}{input_file_name}.{self.config["output"]["extension"]}'
             else:
                 self.logger.error("Input type not supported.")
                 raise ValueError("Input type not supported.")
@@ -426,6 +433,14 @@ class ATMiner(object):
 
         self.logger.info(f"Wrote output document to file: {file_path}")
 
+    def write_config(self):
+        # Create the output path /output_path/run-id/
+        output_path = f'{self.config["output"]["path"]}run-{self.run_id}/'
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        with open(f'{output_path}config_run-{self.run_id}.json', 'w') as f:
+                 json.dump(self.config, f, indent=4, sort_keys=True)
 
     def run(self):
         """Run the ATMiner pipeline.
@@ -461,7 +476,10 @@ class ATMiner(object):
             
             # Write the output 
             self.logger.info(f"Writing output to file.")
-            self.write_output(input_file_path)     
+            self.write_output(input_file_path)
+        
+        # Write the used configuration to file
+        self.write_config()     
 
 
     # ----------------------------------------------------------------------------------------
@@ -778,6 +796,26 @@ class ATMiner(object):
 
         return re_report, gold_labels, pred_labels
 
+    def _write_eval_report(self, out_file, ner_report, re_report_with_gold_ner, re_report_with_pred_ner, stats):
+        # Create the output path /output_path/run-id/
+        output_path = f'{self.config["output"]["path"]}run-{self.run_id}/'
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        with open(f'{output_path}file-{out_file}_ner-report_run-{self.run_id}.json', 'w') as f:
+                 f.write(ner_report)
+
+        with open(f'{output_path}file-{out_file}_re-report-with-gold-entities_run-{self.run_id}.json', 'w') as f:
+                 f.write(re_report_with_gold_ner)
+        
+        with open(f'{output_path}file-{out_file}_re-report-with-pred-entities_run-{self.run_id}.json', 'w') as f:
+                 f.write(re_report_with_pred_ner)
+        
+        with open(f'{output_path}file-{out_file}_stats_run-{self.run_id}.json', 'w') as f:
+            json.dump(stats, f, indent=4, sort_keys=True)
+
+        self.logger.info(f"Wrote evaluation report for file: {out_file}")
+
     def eval(self):
         """Evaluate the pipeline.
 
@@ -961,36 +999,38 @@ class ATMiner(object):
 
             time_now = datetime.today().strftime('%Y-%m-%d-%H-%M-%S-%f')
 
-            with open(f'../logs/debugging/{time_now}-REPORT_STATS-{self.config["input"]["file"]}.txt', 'w') as f:
-                 json.dump(stats_single, f)
-            with open(f'../logs/debugging/{time_now}-NER_REPORT-{self.config["input"]["file"]}.txt', 'w') as f:
-                 f.write(ner_report)
-            with open(f'../logs/debugging/{time_now}-RE_REPORT_WITH_GOLD-{self.config["input"]["file"]}.txt', 'w') as f:
-                 f.write(re_report_with_gold_entities)
-            with open(f'../logs/debugging/{time_now}-NER_REPORT_WITH_PRED-{self.config["input"]["file"]}.txt', 'w') as f:
-                 f.write(re_report_with_pred_entities)
+            # with open(f'../logs/debugging/{time_now}-REPORT_STATS-{self.config["input"]["file"]}.txt', 'w') as f:
+            #      json.dump(stats_single, f)
+            # with open(f'../logs/debugging/{time_now}-NER_REPORT-{self.config["input"]["file"]}.txt', 'w') as f:
+            #      f.write(ner_report)
+            # with open(f'../logs/debugging/{time_now}-RE_REPORT_WITH_GOLD-{self.config["input"]["file"]}.txt', 'w') as f:
+            #      f.write(re_report_with_gold_entities)
+            # with open(f'../logs/debugging/{time_now}-NER_REPORT_WITH_PRED-{self.config["input"]["file"]}.txt', 'w') as f:
+            #      f.write(re_report_with_pred_entities)
+
+            self._write_eval_report(self.config["input"]["file"], 
+                                ner_report, 
+                                re_report_with_gold_entities, 
+                                re_report_with_pred_entities, 
+                                stats_single)  
             
             # Write the output 
             self.logger.info(f"Writing eval predicted articles to output file...")
-            self.write_output(input_file_path)   
-
-
+            self.write_output(input_file_path)  
+        
+        # Write the used configuration to file
+        self.write_config()
 
         # Final report
-
         t1_all = time.time()
         stats_all['total_time_all'] = t1_all - t0_all
-
 
         ner_all_report = self._get_ner_report(ner_all_gold_labels, ner_all_pred_labels)
         re_all_report_with_gold_ner = self._get_re_report(re_all_gold_labels_with_gold_ner, re_all_pred_labels_with_gold_ner)
         re_all_report_with_pred_ner = self._get_re_report(re_all_gold_labels_with_pred_ner, re_all_pred_labels_with_pred_ner)
-        with open(f'../logs/debugging/{time_now}-CONFIG-STATS.json', 'w') as f:
-                 out_dict = {**self.config, **stats_all}
-                 json.dump(out_dict, f)
-        with open(f'../logs/debugging/{time_now}-NER_REPORT-ALL.txt', 'w') as f:
-                 f.write(ner_all_report)
-        with open(f'../logs/debugging/{time_now}-RE_REPORT_WITH_GOLD-ALL.txt', 'w') as f:
-                f.write(re_all_report_with_gold_ner)
-        with open(f'../logs/debugging/{time_now}-NER_REPORT_WITH_PRED-ALL.txt', 'w') as f:
-                f.write(re_all_report_with_pred_ner)
+        
+        self._write_eval_report("all", 
+                                ner_all_report, 
+                                re_all_report_with_gold_ner, 
+                                re_all_report_with_pred_ner, 
+                                stats_all)    

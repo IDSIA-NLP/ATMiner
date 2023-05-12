@@ -6,8 +6,11 @@ Description: ...
 Author: ...
 Month Year
 """
+import uuid
 
 import torch 
+from torch.nn import functional as F
+
 from transformers import LukeTokenizer, LukeForEntityPairClassification
 from atutils.entity_tagger import EntityTagger
 
@@ -39,12 +42,8 @@ class RelationExtractor(object):
         self.logger = logger
         self.local_files_only = local_files_only
         self.max_seq_length = max_seq_length
-        self.context = context_mode
         self.tag_entities = tag_entities
-        if self.context == "single":
-            self.context_size = 1
-        else:
-            self.context_size =  context_size
+        self.context_size =  context_size
 
         self.data_converter = DataConverter(logger, context_size = self.context_size)
 
@@ -108,7 +107,7 @@ class RelationExtractor(object):
             list: A list of dictionaries containing the relations.
         """
         relations = list()
-        for rel_idx, relation_dict in enumerate(luke_data):
+        for  relation_dict in luke_data:
             try:
                 entity_spans = [ 
                     tuple(relation_dict["head"]),
@@ -118,11 +117,16 @@ class RelationExtractor(object):
                 inputs = self.tokenizer(relation_dict["sentence"], entity_spans=entity_spans, return_tensors="pt", truncation=True, padding="max_length", max_length=self.max_seq_length).to(self.device)
                 outputs = self.model(**inputs)
                 logits = outputs.logits
+                probability_scores = logits.softmax(dim=-1).tolist()[0]
+                probability_score = probability_scores[int(logits[0].argmax())]
+                
+
+
                 predicted_class_idx = int(logits[0].argmax())
                 pred_rel = self.model.config.id2label[predicted_class_idx]
                 
                 rel = {
-                    "id": rel_idx,
+                    "id": uuid.uuid4().hex,
                     "head_role": relation_dict["head_type"],
                     "head_id": relation_dict["head_id"],
                     "tail_role": relation_dict["tail_type"],
@@ -131,16 +135,17 @@ class RelationExtractor(object):
                     "context_start_char": relation_dict["context_start_char"],
                     "context_end_char": relation_dict["context_end_char"],
                     "context_size": self.context_size,
-                    "annotator": f"{self.model_name}-{self.model_version}"
+                    "annotator": f"{self.model_name}-{self.model_version}",
+                    "probability_score": probability_score
                 }
 
                 relations.append(rel)
             
-            except:
+            except Exception as e:
                 #! 1. Even if error you can return an none relation
                 #! 2. Count the amount of errors
                 self.logger.error(f"Relation Extraction failed for relation_dict: {relation_dict}")
-        
+                self.logger.error(f"Error: {e}")
         return relations
 
 

@@ -37,9 +37,6 @@ class EntityNormalizer(object):
         """Initialize the OGER pipeline."""
 
         conf = Router(settings=self.model_config["settings_path"])
-        self.logger.debug(f"OGER conf: {vars(conf)}")
-        
-        self.logger.debug(f"OGER conf: {vars(conf)}")
         # Initiziate oger pipline
         self.oger_pipeline = PipelineServer(conf, lazy=True)
         self.logger.debug(f"OGER PipelineServer conf: {vars(self.oger_pipeline._conf)}")

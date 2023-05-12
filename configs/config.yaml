@@ -1,6 +1,6 @@
 input:
   path: ../data/tmp/input_test/
-  file: PMC3082990
+  file: PMC4714060
   extension: txt
   format: txt # bioc_json, txt
   type: multiple # single, multiple
@@ -22,6 +22,7 @@ ner:
   model_path: 2022-11-10-18-38_NER_dmis-lab-biobert-large-cased-v1.1_test_model
   from_local: True
   max_seq_length: 512
+  aggregation_strategy: average #simple, first, average, max
   
   # OGER configs
   # model: oger # oger
@@ -55,7 +56,6 @@ nlp:
   model: en_core_web_sm
 
 context:
-  mode: single # single, multiple 
   size: 6
 
 models:
