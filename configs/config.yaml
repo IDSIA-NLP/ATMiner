@@ -1,5 +1,5 @@
 input:
-  path: ../data/tmp/input_test/
+  path: ../data/tmp/input_test_timing/
   file: PMC4714060
   extension: txt
   format: txt # bioc_json, txt

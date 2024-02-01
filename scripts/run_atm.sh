@@ -7,6 +7,7 @@
 #SBATCH --gres=gpu:1     # Request 1 GPU
 #SBATCH --output=./log.out # output log file
 #SBATCH --error=./error.err  # error file
+#SBATCH -w gnode04 # specify the node
 echo "Job started at "`date`
 module purge
 

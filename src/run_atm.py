@@ -14,6 +14,7 @@ from loguru import logger
 import numpy as np
 import spacy
 import json
+import time
 
 from atminer.config import Config
 from atminer.atminer import ATMiner
@@ -57,5 +58,12 @@ if __name__ == '__main__':
     logger.add("../logs/run_atm.log", rotation="1 MB", level=_config()["logger"]["level"])
     logger.info(f'Start ...')
 
-   # Run main
+    # Time the execution
+    start = time.time()
+
+    # Run main
     main(logger)
+
+    # End timing and log in minutes
+    end = time.time()
+    logger.info(f'Finished in {round((end - start) / 60, 2)} minutes')

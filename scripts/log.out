@@ -1,359 +1,72 @@
-Job started at Fri Sep 15 01:00:02 CEST 2023
+Job started at Thu Feb 1 15:19:36 CET 2024
 atminer
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 0
-Number of exceptions: 0
-Cannot print data sample: list index out of range
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 44
+Number of tagged data samples: 15909
 Number of exceptions: 0
-Data sample: {'sentence': 'Anastatus Motschulsky (<arthropod> Hymenoptera </arthropod>, Eupelmidae): egg <trait> parasitoids </trait> of Caligula japonica Moore (Lepidoptera, Saturniidae) in China\nAbstract\nFour species of Anastatus Motschulsky (Hymenoptera, Eupelmidae, Eupelminae) are newly reported as egg parasitoids of the Japanese giant silkworm, Caligula japonica Moore and, as an alternate laboratory host, the Chinese oak silk moth, Antheraea pernyi (Guérin-Méneville) (Lepidoptera, Saturniidae) in China. The four species, A. fulloi Sheng & Wang, 1997, A. gansuensis Chen & Zang, sp. nov., A. japonicus Ashmead, 1904, and A. meilingensis Sheng, 1998, were reared initially from eggs of C. japonica collected in Gansu, Jilin and Liaoning provinces and subsequently cultured in the laboratory on eggs of A. pernyi. An illustrated key to differentiate females of the four species, and males of some of the species is provided. Key features are illustrated, both sexes of the new species are described, and diagnoses of females of the other species are given.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 996, 'head': [35, 46], 'tail': [86, 97], 'head_type': 'Arthropod', 'head_id': '3105f32e28f749d5b73eeb81f7755ec6', 'tail_type': 'Trait', 'tail_id': '781c1a4fe7b2462689889b633fb4b2ca', 'head_text': 'Hymenoptera', 'tail_text': 'parasitoids'}
+Data sample: {'sentence': 'Abstract A new mysid, <arthropod> Mysidella hoshinoi </arthropod> sp. n. is described from Izu-Oshima Island, Sagami Sea, central Japan. This species <trait> differs </trait> from its congeners in having a posterodorsal finger-like papilla on the eyestalk, five peculiar spines terminating in plumed seta on outer margin of carpopropodus of endopod of first thoracopod, and uropodal endopod bearing 27 spines on inner margin. Introduction Mysidella G. O. Sars, 1872, is the only genus of the subfamily Mysidellinae Czerniavsky, 1882 and includes 16 species ( WoRMS 2016 ), ranging in depth from 3 m to 738 m worldwide ( Murano 2002 ). Among these, four species have so far been reported from Japan: Mysidella nana Murano, 1970 at 18–80 m, Oomura Bay, Tateyama Bay, and Suruga Bay ( Murano 1970a , 1970b , 2002 ), Mysidella orientalis Murano, 2002 at 347–369 m, eastern East China Sea ( Murano 2002 ), Mysidella tanakai Ii, 1964 at 220–660 m, Suruga Bay, Tateyama Bay and Sagami Bays ( Ii 1964 ; Murano 1970b , 2002 ), and Mysidella truncata Murano, 2002 at 138–141 m, Amami-Oshima Island ( Murano 2002 ). Our recent investigations yielded an undescribed species Mysidella from a marine benthic habitat of Izu-Oshima, Sagami Sea. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 1187, 'head': [34, 52], 'tail': [158, 165], 'head_type': 'Arthropod', 'head_id': 'ea8310b59894406498312dc6bbd9b5ef', 'tail_type': 'Trait', 'tail_id': '1fa28e383b264c36b478cb7d89f0c133', 'head_text': 'Mysidella hoshinoi', 'tail_text': 'differs'}
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 63
+Number of tagged data samples: 6980
 Number of exceptions: 0
-Data sample: {'sentence': 'Description of a new, unusual species of <arthropod> Diestostemma </arthropod> Amyot & Serville (Hemiptera, Cicadellidae) <trait> from </trait> Ecuador\nAbstract\nDiestostemma bicristatasp. nov., is described from Napo Province, Ecuador. It is unusual for the genus in lacking a visible white powdery covering, having raised, weakly reticulate veins on the forewing, a short metathoracic femur (half length of the metathoracic tibia), and is the only species with a double-crested pronotum.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 447, 'head': [53, 65], 'tail': [130, 134], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Diestostemma', 'tail_text': 'from'}
+Data sample: {'sentence': 'Abstract <arthropod> Trichieurina haladai </arthropod> sp. n. (Diptera, Chloropidae), is described <trait> from </trait> Zambia. All known Trichieurina species are keyed and main differential characters are illustrated. Introduction The genus Trichieurina Duda, 1933 is a small genus of the subfamily Chloropinae ( Diptera , Chloropidae ) belonging to the Platycephala genus group sensu Andersson (1977) . Until now only three species have been known in the world fauna. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 429, 'head': [21, 41], 'tail': [107, 111], 'head_type': 'Arthropod', 'head_id': '5189acd3a27042ed928accfda7f9a89e', 'tail_type': 'Trait', 'tail_id': 'dad41fe0991940b4afdc6e236b8a2a30', 'head_text': 'Trichieurina haladai', 'tail_text': 'from'}
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 7
+Number of tagged data samples: 5344
 Number of exceptions: 0
-Data sample: {'sentence': 'Description of a new, unusual species of <arthropod> Diestostemma </arthropod> Amyot & Serville (Hemiptera, Cicadellidae) from Ecuador\nAbstract\nDiestostemma bicristatasp. nov., is described <trait> from </trait> Napo Province, Ecuador. It is unusual for the genus in lacking a visible white powdery covering, having raised, weakly reticulate veins on the forewing, a short metathoracic femur (half length of the metathoracic tibia), and is the only species with a double-crested pronotum.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 447, 'head': [53, 65], 'tail': [198, 202], 'head_type': 'Arthropod', 'head_id': '8de0afce95e3493198dcf7b3566f19ee', 'tail_type': 'Trait', 'tail_id': 'dac3dc4da42540748a3c5a49a9139b97', 'head_text': 'Diestostemma', 'tail_text': 'from'}
+Data sample: {'sentence': 'Abstract The genus <arthropod> Grotea </arthropod> has 18 described species. A new species, Grotea villosissima sp. n. , is described here and its host information included. This is the first record of Grotea for Colombia. Introduction The Labeninae is a group of parasitoid wasps with a mainly Gondwanan distribution ( Townes 1969 ; Gauld 1983 ; Wahl 1993 , Gauld 2000 ); although most of its members occur in the Australasian or the Neotropical region, two of its genera, Labena and Grotea , <trait> occur </trait> in North America ( Townes and Townes 1960 ; Slobodchikoff 1970 , Gauld 2000 ). According to Gauld and Wahl (2000) , those exceptions provide evidence of the spread of some members of this subfamily towards the north after the establishment of the Mesoamerican land bridge ( Gauld and Wahl 2000 , Gauld 2000 ). ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 785, 'head': [31, 37], 'tail': [502, 507], 'head_type': 'Arthropod', 'head_id': '541856171635467b89ffcadcb02a4c5e', 'tail_type': 'Trait', 'tail_id': '8423b9ee2c86444bb5d18cbef2441792', 'head_text': 'Grotea', 'tail_text': 'occur'}
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 1057
+Number of tagged data samples: 5558
 Number of exceptions: 0
-Data sample: {'sentence': '<arthropod> Megaselia steptoeae </arthropod> (Diptera: Phoridae): <trait> specialists </trait> on smashed snails\nAbstract\nBackground\nPhorid flies are amongst the most biologically diverse and species-rich groups of insects. Ways of life range from parasitism, herbivory, fungivory, to scavenging. Although the lifestyles of most species are unknown, many are parasitoids, especially of social insects. Some species of ant-parasitoids are attracted to injured hosts for feeding purposes to develop eggs, as well as for oviposition, requiring each female to find two injured hosts.\nNew information\nFemales of the phorid fly Megaselia steptoeae Hartop et al. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 614, 'head': [12, 31], 'tail': [74, 85], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Megaselia steptoeae', 'tail_text': 'specialists'}
+Data sample: {'sentence': 'Abstract Two new species, <arthropod> Pselaphodes linae </arthropod> Yin & Li, sp. n. (Hainan, Fujian) and Pselaphodes shii Yin & Li, sp. n. (Hainan) are described <trait> from </trait> South China. Taiwanophodes minor Hlaváč is reported from outside Taiwan for the first time. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 236, 'head': [38, 55], 'tail': [172, 176], 'head_type': 'Arthropod', 'head_id': '47197a98578e4a048e91271d52e405d4', 'tail_type': 'Trait', 'tail_id': 'f0f082bfa58f4ce0b35e2c4a35188da2', 'head_text': 'Pselaphodes linae', 'tail_text': 'from'}
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 210
+Number of tagged data samples: 4457
 Number of exceptions: 0
-Data sample: {'sentence': '<arthropod> Megaselia steptoeae </arthropod> (Diptera: Phoridae): <trait> specialists </trait> on smashed snails\nAbstract\nBackground\nPhorid flies are amongst the most biologically diverse and species-rich groups of insects. Ways of life range from parasitism, herbivory, fungivory, to scavenging. Although the lifestyles of most species are unknown, many are parasitoids, especially of social insects. Some species of ant-parasitoids are attracted to injured hosts for feeding purposes to develop eggs, as well as for oviposition, requiring each female to find two injured hosts.\nNew information\nFemales of the phorid fly Megaselia steptoeae Hartop et al. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 614, 'head': [12, 31], 'tail': [74, 85], 'head_type': 'Arthropod', 'head_id': '54af3fc1d11c436687d2cd1baaf9765f', 'tail_type': 'Trait', 'tail_id': '643ce8e012a1434d88afa5621657ffdd', 'head_text': 'Megaselia steptoeae', 'tail_text': 'specialists'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 6
-Number of tagged data samples: 2916
-Number of exceptions: 6
-Data sample: {'sentence': 'Taxonomic recovery of the ant cricket <arthropod> Myrmecophilus albicinctus </arthropod> from M. americanus (Orthoptera, Myrmecophilidae)\nAbstract\nMyrmecophilus americanus and Myrmecophilus albicinctus are typical <trait> myrmecophilous </trait> insects living inside ant nests. These species are ecologically important due to the obligate association with tramp ant species, including harmful invasive ant species. However, the taxonomy of these “white-banded ant crickets” is quite confused owing to a scarcity of useful external morphological characteristics. Recently, Myrmecophilus albicinctus was synonymized with Myrmecophilus americanus regardless of the apparent host use difference. To clarify taxonomical relationship between Myrmecophilus albicinctus and Myrmecophilus albicinctus, we reexamined morphological characteristics of both species mainly in the viewpoint of anatomy. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 848, 'head': [50, 75], 'tail': [222, 236], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '6', 'head_text': 'Myrmecophilus albicinctus', 'tail_text': 'myrmecophilous'}
+Data sample: {'sentence': 'Abstract Two new species of the stonefly genus <arthropod> Neoperla </arthropod> , N. nigromarginata sp. n. and N. similiflavescens sp. n. , are described <trait> from </trait> Dabie Mountains of Central China in the Liankangshan National Nature Reserve. The new species are compared with related congeners. Introduction Neoperla is the most species-rich stonefly genus in the family Perlidae in China ( Du et al. 1999 , Sivec et al. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 392, 'head': [59, 67], 'tail': [163, 167], 'head_type': 'Arthropod', 'head_id': 'bee824472ea148e1bcf5420c4a6877cf', 'tail_type': 'Trait', 'tail_id': 'bc596d32fd354c60ba665129f095848d', 'head_text': 'Neoperla', 'tail_text': 'from'}
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 977
+Number of tagged data samples: 11862
 Number of exceptions: 0
-Data sample: {'sentence': '<arthropod> Introduction\nMyrmecophilus </arthropod> (Myrmophilina) americanus Saussure, 1877 (Orthoptera: Myrmecophilidae) (Figs 1a, 2a) is a typical example of an ant guest that lives inside ant nests. This species, similar to its congeners, eats food found inside the ant nest, either by itself or via mouth-to-mouth feeding by the ants (Wetterer and Hugel 2008). Its body color is totally black except for a single white band on the mesonotum. Myrmecophilus americanus was first described on the basis of a single female specimen collected in Colombia (Saussure 1877). The species is currently known to be distributed across tropical Asia, including on small islands, northern Africa, and the Neotropics (Wetterer and Hugel 2008). Its <trait> host </trait>-ant-species specificity is quite high; it has been collected exclusively (Wetterer and Hugel 2008) from nests of the longhorn crazy ant, Paratrechina longicornis (Latreille 1802). ', 'relation': 'undefined', 'context_start_char': 1128, 'context_end_char': 2026, 'head': [12, 38], 'tail': [746, 750], 'head_type': 'Arthropod', 'head_id': '88e3c4632a8041ddaf82b33396c50fef', 'tail_type': 'Trait', 'tail_id': '98a9b72084214e88b05994844c5c56c0', 'head_text': 'Introduction\nMyrmecophilus', 'tail_text': 'host'}
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 0
-Number of exceptions: 0
-Cannot print data sample: list index out of range
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 0
-Number of exceptions: 0
-Cannot print data sample: list index out of range
+Data sample: {'sentence': 'Abstract Background During the investigation of forest insects in Guilin, Guangxi, encyrtid parasitoid wasps belonging to the genus <arthropod> Psyllaephagus </arthropod> were reared from Macrohomotoma sinica ( Hemiptera : Homotomidae ) <trait> feeding </trait> on Ficus concinna . New information A new species of Psyllaephagus Howard ( Hymenoptera : Encyrtidae ), P. guangxiensis Zu sp. nov., is described from Guangxi, China as a parasitoid of Macrohomotoma sinica Yang & Li ( Hemiptera : Homotomidae ) on Ficus concinna (Miq.) Miq. ( Urticales : Moraceae ). Introduction Ficus concinna is an important landscaping tree species, widely distributed in the coastal areas of southern China and has important ornamental and economic value. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 697, 'head': [144, 157], 'tail': [245, 252], 'head_type': 'Arthropod', 'head_id': 'ffd01aeff39541c498430e4b298ba8ec', 'tail_type': 'Trait', 'tail_id': 'b6244c10fae442259e2abe89576cae9f', 'head_text': 'Psyllaephagus', 'tail_text': 'feeding'}
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 84
+Number of tagged data samples: 2746
 Number of exceptions: 0
-Data sample: {'sentence': 'First record of <arthropod> Trissolcus basalis </arthropod> (Hymenoptera: Scelionidae) <trait> parasitizing </trait> Halyomorpha halys (Hemiptera: Pentatomidae) in the United States\nAbstract\nBackground\nA parasitoid wasp, Trissolcus basalis (Wollaston), was recorded parasitizing eggs of the invasive stink bug Halyomorpha halys (Stål) in the United States. This is the first record of this species parasitizing fresh and frozen eggs of H. halys in the United States.\nNew information\nFirst record of Trissolcus basalis parasitizing Halyomorpha halys eggs in the United States.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 534, 'head': [28, 46], 'tail': [95, 107], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Trissolcus basalis', 'tail_text': 'parasitizing'}
+Data sample: {'sentence': 'Sands (1998 : 169) also noted “At least one new species awaits description from rain forest”. We herein describe this remarkable new Anenteotermes as <arthropod> A. cherubimi </arthropod> sp. n., the smallest known soldierless termite in Africa. Materials and methods Preserved workers, stored in 85% ethanol, were positioned in a transparent petri dish filled with Purell® hand sanitizer (70% EtOH). Body sections and dissected guts were photographed as multi-layer montages using a Leica M205C stereomicroscope with a Leica DFC 425 module run with Leica Application Suite software version 3. <trait> Mandibles </trait> and EVA were mounted on slides with PVA mounting medium (Bioquip Products, Inc.) ', 'relation': 'undefined', 'context_start_char': 1018, 'context_end_char': 1678, 'head': [162, 174], 'tail': [602, 611], 'head_type': 'Arthropod', 'head_id': 'e6c01c6afa764f5ca9a77dc18d805d74', 'tail_type': 'Trait', 'tail_id': '7ac696b1b99143fea5a4159050cc4235', 'head_text': 'A. cherubimi', 'tail_text': 'Mandibles'}
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 48
+Number of tagged data samples: 1123
 Number of exceptions: 0
-Data sample: {'sentence': 'First record of <arthropod> Trissolcus basalis </arthropod> (Hymenoptera: Scelionidae) <trait> parasitizing </trait> Halyomorpha halys (Hemiptera: Pentatomidae) in the United States\nAbstract\nBackground\nA parasitoid wasp, Trissolcus basalis (Wollaston), was recorded parasitizing eggs of the invasive stink bug Halyomorpha halys (Stål) in the United States. This is the first record of this species parasitizing fresh and frozen eggs of H. halys in the United States.\nNew information\nFirst record of Trissolcus basalis parasitizing Halyomorpha halys eggs in the United States.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 534, 'head': [28, 46], 'tail': [95, 107], 'head_type': 'Arthropod', 'head_id': 'aa4386bb777149b38c7bc1ab4ef29709', 'tail_type': 'Trait', 'tail_id': '33f63e280de24b4eaea68e21b885c877', 'head_text': 'Trissolcus basalis', 'tail_text': 'parasitizing'}
+Data sample: {'sentence': 'Eritingis recens : Drake and Ruhoff 1962 : 497, new combination and illustration; Drake and Ruhoff 1965a : 209, catalogue; Drake and Ruhoff 1965b : 255, distribution and illustration. <arthropod> Eritingis </arthropod> recentis : Tomokuni 2008 : 54, distribution. Materials Type status: Other material . Occurrence: recordedBy: Shoichi Miyamoto ; individualCount: 2 ; sex: female ; lifeStage: adult ; Taxon: scientificName: Eritingis recentis (Drake and Ruhoff, 1937) ; namePublishedIn: 1937 ; kingdom: Animalia ; phylum: Arthropoda ; class: Insecta ; order: Hemiptera ; family: Tingidae ; genus: Eritingis ; specificEpithet: recentis ; scientificNameAuthorship: Drake and Poor ; Location: islandGroup: Ryukyu Islands ; island: Okinawa Honto Island ; country: Japan ; stateProvince: Okinawa ; county: Kunigami-son ; municipality: Yona ; decimalLatitude: 26.75794048 ; decimalLongitude: 128.22516288 ; geodeticDatum: WGS84 ; Identification: identifiedBy: Jun Souma ; dateIdentified: 2021 ; Event: samplingProtocol: none specified ; eventDate: 22-05-1965 ; Record Level: institutionCode: KUM ; basisOfRecord: PreservedSpecimen Type status: Other material . Occurrence: recordedBy: Yorio Miyatake ; individualCount: 1 ; sex: female ; lifeStage: adult ; Taxon: scientificName: Eritingis recentis (Drake and Ruhoff, 1937) ; namePublishedIn: 1937 ; kingdom: Animalia ; phylum: Arthropoda ; class: Insecta ; order: Hemiptera ; family: Tingidae ; genus: Eritingis ; specificEpithet: recentis ; scientificNameAuthorship: Drake and Poor ; Location: continent: Eurasia ; country: Thailand ; stateProvince: Songkhla ; county: Khao Noi ; decimalLatitude: 7.22280430 ; decimalLongitude: 100.56143999 ; geodeticDatum: WGS84 ; Identification: identifiedBy: Jun Souma ; dateIdentified: 2021 ; Event: samplingProtocol: none specified ; eventDate: 22-06-1965 ; Record Level: institutionCode: KUM ; basisOfRecord: PreservedSpecimen Type status: Other material . Occurrence: recordedBy: Yorio Miyatake ; individualCount: 1 ; sex: female ; lifeStage: adult ; Taxon: scientificName: Eritingis recentis (Drake and Ruhoff, 1937) ; namePublishedIn: 1937 ; kingdom: Animalia ; phylum: Arthropoda ; class: Insecta ; order: Hemiptera ; family: Tingidae ; genus: Eritingis ; specificEpithet: recentis ; scientificNameAuthorship: Drake and Poor ; Location: continent: Eurasia ; country: Thailand ; stateProvince: Songkhla ; county: Songkhla ; decimalLatitude: 7.19543333 ; decimalLongitude: 100.59582610 ; geodeticDatum: WGS84 ; Identification: identifiedBy: Jun Souma ; dateIdentified: 2021 ; Event: samplingProtocol: none specified ; eventDate: 23-06-1965 ; Record Level: institutionCode: KUM ; basisOfRecord: PreservedSpecimen Diagnosis Eritingis recentis can be distinguished from other species of Eritingis based on a combination of the following characteristics: <trait> body length </trait> 3.0–3.2 mm, 3.3 times as long as maximum width across hemelytra (Fig. ', 'relation': 'undefined', 'context_start_char': 3083, 'context_end_char': 5978, 'head': [196, 205], 'tail': [2846, 2857], 'head_type': 'Arthropod', 'head_id': '74276ccf4eda4345920b615125ea37d5', 'tail_type': 'Trait', 'tail_id': '941aa6134dad44258015baa4a5080575', 'head_text': 'Eritingis', 'tail_text': 'body length'}
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 14
+Number of tagged data samples: 20
 Number of exceptions: 0
-Data sample: {'sentence': 'Revision of the South American genus <arthropod> Gaujonia </arthropod> Dognin (Noctuidae, Pantheinae) with descriptions of five new genera and twenty-one new species\nAbstract\nThe endemic <trait> Neotropical </trait> genus Gaujonia Dognin is revised. Morphological characters and a phylogenetic analysis demonstrate paraphyletic relationships among the species. Four different groups are interpreted to represent four different genera. The G. arbosi group is the only remaining clade in the genus Gaujonia, and the other groups have been arranged into three new genera: Milleranagen. nov., Oculicattusgen. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 563, 'head': [49, 57], 'tail': [195, 206], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Gaujonia', 'tail_text': 'Neotropical'}
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 0
-Number of exceptions: 0
-Cannot print data sample: list index out of range
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 24
-Number of tagged data samples: 14454
-Number of exceptions: 24
-Data sample: {'sentence': 'Two new species of <arthropod> Centrodora </arthropod> (Hymenoptera, Aphelinidae) <trait> from </trait> China, with a key to Chinese species\nAbstract\nTwo new species of Centrodora Förster, C. crassiscapa sp. n. and C. pellucida sp. n., are described from China. A key to species from China based on females is given.\nIntroduction\nCentrodora Förster, 1878 currently comprises 61 species (Noyes 2017). ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 358, 'head': [31, 41], 'tail': [90, 94], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Centrodora', 'tail_text': 'from'}
+Data sample: {'sentence': 'Occurrence: recordedBy: Stephen E. Thorpe ; individualCount: 1 ; Location: country: New Zealand ; stateProvince: Auckland ; verbatimLocality: Tamaki Campus (East), suburb of Saint Johns ; verbatimLatitude: 36.88685S ; verbatimLongitude: 174.85260E ; Event: eventDate: 2013-06-10 ; Record Level: institutionCode: Auckland Museum (AMNZ) Description On 10 June 2013, I collected a single specimen of an emesine reduviid amongst long grass in a weedy overgrown wasteland area within the Tamaki Campus (East) of the University of Auckland. It is easily identified as <arthropod> Emesopsis infenestra </arthropod> from the original description ( Tatarnic et al. 2011 ), and Nik Tatarnic (pers. comm.) agrees with my determination. <trait> Fig </trait>. ', 'relation': 'undefined', 'context_start_char': 728, 'context_end_char': 1433, 'head': [574, 594], 'tail': [733, 736], 'head_type': 'Arthropod', 'head_id': 'f1cc7f52874e4f218ad1f4ab4bfdcb35', 'tail_type': 'Trait', 'tail_id': 'e6f54dcf9b2741ba8de52f158f08e434', 'head_text': 'Emesopsis infenestra', 'tail_text': 'Fig'}
 Samples processed ==> ______0 | Exceptions ==> ___0
 
 Tagging done!
 Overlapping entities: 0
-Number of tagged data samples: 11730
+Number of tagged data samples: 18
 Number of exceptions: 0
-Data sample: {'sentence': 'Two new species of <arthropod> Centrodora </arthropod> (Hymenoptera, Aphelinidae) <trait> from </trait> China, with a key to Chinese species\nAbstract\nTwo new species of Centrodora Förster, C. crassiscapa sp. n. and C. pellucida sp. n., are described from China. A key to species from China based on females is given.\nIntroduction\nCentrodora Förster, 1878 currently comprises 61 species (Noyes 2017). ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 358, 'head': [31, 41], 'tail': [90, 94], 'head_type': 'Arthropod', 'head_id': '30a99f0d1206465dbd7103e06c746983', 'tail_type': 'Trait', 'tail_id': '2beb738a7b614a329439105eec9d2136', 'head_text': 'Centrodora', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 4782
-Number of exceptions: 0
-Data sample: {'sentence': '<arthropod> Halocoryza </arthropod> Alluaud 1919, sea-side beetles of the Indian, Atlantic (sensu lato), and Pacific Oceans: a generic synopsis and description of a remarkable new species <trait> from </trait> Baja California Sur, México (Coleoptera, Carabidae, Scaritini, Clivinina)\nAbstract\nInformation on the three previously described species of Halocoryza Alluaud is updated and a new species for the genus from Isla Carmen, Sea of Cortés, Baja California Sur, México is described. Halocoryza whiteheadiana sp. n. was found at UV light on a beach of that island. This species does not fit the profile of the other three species, i.e., living on coralline beach sands, or in the Mangrove intertidal zone. Two alternative possibilities as to why this is so are suggested and a study plan for testing these possibilities is proposed.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 794, 'head': [12, 22], 'tail': [196, 200], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '1', 'head_text': 'Halocoryza', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 5732
-Number of exceptions: 0
-Data sample: {'sentence': '<arthropod> Halocoryza </arthropod> Alluaud 1919, sea-side beetles of the Indian, Atlantic (sensu lato), and Pacific Oceans: a generic synopsis and description of a remarkable new species from Baja California Sur, México (Coleoptera, Carabidae, Scaritini, Clivinina)\nAbstract\nInformation on the three previously described species of Halocoryza Alluaud is updated and a new species for the genus <trait> from </trait> Isla Carmen, Sea of Cortés, Baja California Sur, México is described. Halocoryza whiteheadiana sp. n. was found at UV light on a beach of that island. This species does not fit the profile of the other three species, i.e., living on coralline beach sands, or in the Mangrove intertidal zone. Two alternative possibilities as to why this is so are suggested and a study plan for testing these possibilities is proposed.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 794, 'head': [12, 22], 'tail': [403, 407], 'head_type': 'Arthropod', 'head_id': 'a8ca2523247646a7b3b47ef9b9f6574e', 'tail_type': 'Trait', 'tail_id': '5cd5a7a7c0494048bfe3fa92b1575e8b', 'head_text': 'Halocoryza', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 37606
-Number of exceptions: 0
-Data sample: {'sentence': 'Description of a new species of <arthropod> Zeuxevania </arthropod> Kieffer (Hymenoptera: Evaniidae) <trait> from </trait> India with a key to species\nAbstract\nBackground\nTaxonomy and diversity of Evaniidae from India have not been studied in depth and hosts of many species are unknown. Out of 31 world genera, only five genera (Evania Fab., Prosevania Kieffer, Szepligetella Bradley, Vernevania Huben & Deans and Zeuxevania Kieffer) are reported from India. Based on the collection deposited in the Hymenoptera section of Zoological Survey of India (National Zoological Collection), here we are describing a new species of the genus Zeuxevania.\nNew information\nA new evaniid species Zeuxevania hubeni sp. nov. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 670, 'head': [44, 54], 'tail': [109, 113], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Zeuxevania', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 34766
-Number of exceptions: 0
-Data sample: {'sentence': 'Description of a new species of <arthropod> Zeuxevania </arthropod> Kieffer (Hymenoptera: Evaniidae) <trait> from </trait> India with a key to species\nAbstract\nBackground\nTaxonomy and diversity of Evaniidae from India have not been studied in depth and hosts of many species are unknown. Out of 31 world genera, only five genera (Evania Fab., Prosevania Kieffer, Szepligetella Bradley, Vernevania Huben & Deans and Zeuxevania Kieffer) are reported from India. Based on the collection deposited in the Hymenoptera section of Zoological Survey of India (National Zoological Collection), here we are describing a new species of the genus Zeuxevania.\nNew information\nA new evaniid species Zeuxevania hubeni sp. nov. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 670, 'head': [44, 54], 'tail': [109, 113], 'head_type': 'Arthropod', 'head_id': 'c3bd8f3c29a7408a8c398aa8a1571d31', 'tail_type': 'Trait', 'tail_id': '919e997311a34c4aa7cdbf93000d3696', 'head_text': 'Zeuxevania', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 2238
-Number of exceptions: 0
-Data sample: {'sentence': 'First report of the <trait> leaf-mining </trait> genus <arthropod> Antispila </arthropod> Hübner, [1825] from mainland China, with the description of a new species feeding on Cornus (Lepidoptera, Heliozelidae)\nAbstract\nThe genus Antispila Hübner, [1825] is newly recorded from mainland China. Antispila sinensis sp. n., the first formally named Heliozelidae species in mainland China, is described. The host plant of the new species, Cornus walteri Wangerin (Cornaceae), is widespread through east Asia and is used as a shade tree in city parks in Jinan City, where the moth causes damage to foliage. Morphological and molecular analyses distinguish A. sinensis sp. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 624, 'head': [28, 39], 'tail': [67, 76], 'head_type': 'Trait', 'head_id': '0', 'tail_type': 'Arthropod', 'tail_id': '1', 'head_text': 'leaf-mining', 'tail_text': 'Antispila'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 5611
-Number of exceptions: 0
-Data sample: {'sentence': 'First report of the leaf-mining genus <arthropod> Antispila </arthropod> Hübner, [1825] from mainland China, with the description of a new species <trait> feeding on </trait> Cornus (Lepidoptera, Heliozelidae)\nAbstract\nThe genus Antispila Hübner, [1825] is newly recorded from mainland China. Antispila sinensis sp. n., the first formally named Heliozelidae species in mainland China, is described. The host plant of the new species, Cornus walteri Wangerin (Cornaceae), is widespread through east Asia and is used as a shade tree in city parks in Jinan City, where the moth causes damage to foliage. Morphological and molecular analyses distinguish A. sinensis sp. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 624, 'head': [50, 59], 'tail': [155, 165], 'head_type': 'Arthropod', 'head_id': 'cebba1a68f2d4b9e97d238eec27ee764', 'tail_type': 'Trait', 'tail_id': 'e54a41c2f5de45bc96bc581eb1b08e2b', 'head_text': 'Antispila', 'tail_text': 'feeding on'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 20909
-Number of exceptions: 0
-Data sample: {'sentence': 'New genera of philopotine spider flies (<arthropod> Diptera </arthropod>, Acroceridae) with a key to living and fossil genera\nAbstract\nInformation on the three previously described species of Halocoryza Alluaud is updated and a new species for the genus <trait> from </trait> Isla Carmen, Sea of Cortés, Baja California Sur, México is described. Halocoryza whiteheadiana sp. n. was found at UV light on a beach of that island. This species does not fit the profile of the other three species, i.e., living on coralline beach sands, or in the Mangrove intertidal zone. Two alternative possibilities as to why this is so are suggested and a study plan for testing these possibilities is proposed.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 653, 'head': [52, 59], 'tail': [262, 266], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Diptera', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 32243
-Number of exceptions: 0
-Data sample: {'sentence': 'New genera of <arthropod> philopotine </arthropod> spider flies (Diptera, Acroceridae) with a key to living and fossil genera\nAbstract\nInformation on the three previously described species of Halocoryza Alluaud is updated and a new species for the genus <trait> from </trait> Isla Carmen, Sea of Cortés, Baja California Sur, México is described. Halocoryza whiteheadiana sp. n. was found at UV light on a beach of that island. This species does not fit the profile of the other three species, i.e., living on coralline beach sands, or in the Mangrove intertidal zone. Two alternative possibilities as to why this is so are suggested and a study plan for testing these possibilities is proposed.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 653, 'head': [26, 37], 'tail': [262, 266], 'head_type': 'Arthropod', 'head_id': '294da3bc5f164e5b86ec73b6a4336971', 'tail_type': 'Trait', 'tail_id': '359533b2d372464a91929f6ce19f3fdf', 'head_text': 'philopotine', 'tail_text': 'from'}
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 0
-Number of exceptions: 0
-Cannot print data sample: list index out of range
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 0
-Number of exceptions: 0
-Cannot print data sample: list index out of range
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 9235
-Number of exceptions: 0
-Data sample: {'sentence': 'A new species of the genus <arthropod> Karnyothrips </arthropod> (Thysanoptera, Phlaeothripidae) <trait> from </trait> China\nAbstract\nKarnyothrips cyathomorphus sp. n. (Phlaeothripidae: Phlaeothripinae) is described as a new apterous species in the genus Karnyothrips Watson 1923, and it represents the fourth species of the genus to be recorded from China. A key to the Chinese species is given.\nIntroduction\nThe genus Karnyothrips, belonging to the Haplothrips lineage in Phlaeothripinae, was established by Watson for the species Karynia weigeli, a synonym of Karnyothrips flavipes (Jones). ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 552, 'head': [39, 51], 'tail': [105, 109], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Karnyothrips', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 8078
-Number of exceptions: 0
-Data sample: {'sentence': 'A new species of the genus <arthropod> Karnyothrips </arthropod> (Thysanoptera, Phlaeothripidae) <trait> from </trait> China\nAbstract\nKarnyothrips cyathomorphus sp. n. (Phlaeothripidae: Phlaeothripinae) is described as a new apterous species in the genus Karnyothrips Watson 1923, and it represents the fourth species of the genus to be recorded from China. A key to the Chinese species is given.\nIntroduction\nThe genus Karnyothrips, belonging to the Haplothrips lineage in Phlaeothripinae, was established by Watson for the species Karynia weigeli, a synonym of Karnyothrips flavipes (Jones). ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 552, 'head': [39, 51], 'tail': [105, 109], 'head_type': 'Arthropod', 'head_id': '633abd537a0c445fb88e3b42b4ddfc54', 'tail_type': 'Trait', 'tail_id': '032133f7435b43ae8550d7ae416cf84b', 'head_text': 'Karnyothrips', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 1726
-Number of exceptions: 0
-Data sample: {'sentence': 'Integrating multiple sources of biodiversity information greatly expands the range of a rare species of <arthropod> Hymenoptera </arthropod> (Vanhorniidae)\nAbstract\nBackground\nVanhornia eucnemidarum Crawford is the only species of Vanhorniidae that <trait> occurs in </trait> North America. This species is rarely collected and thus the distribution is not well documented. Intending to uncover a more accurate range of this species, we assembled collection records from museums, personal collections and citizen science projects. Many of these records were non-digitised and had to be personally requested.\nNew information\nHere we expand the known distribution of V. eucnemidarum to include nine new provinces and states: Manitoba, Connecticut, Oregon, Mississippi, Missouri, New Hampshire, New Jersey, Texas and Wisconsin. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 783, 'head': [116, 127], 'tail': [257, 266], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '4', 'head_text': 'Hymenoptera', 'tail_text': 'occurs in'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 392
-Number of exceptions: 0
-Data sample: {'sentence': '2015). When collated, these sources can greatly increase knowledge on species, particularly with respect to geographic range. This highlights the importance of museums and specimen digitisation (Mehrhoff 1997), as well as the valuable part that the general public can play in expanding our knowledge of species (Ellwood et al. 2015), whether previously described or not.\n<arthropod> Vanhorniidae </arthropod> (Hymenoptera: Proctotrupoidea, Fig. 1A) are uncommonly collected <trait> parasitoids </trait> of false click beetle larvae (Coleoptera: Eucnemidae). ', 'relation': 'undefined', 'context_start_char': 1520, 'context_end_char': 2036, 'head': [383, 395], 'tail': [482, 493], 'head_type': 'Arthropod', 'head_id': 'a34b6c23b8094a30b54825c7b3bf21a7', 'tail_type': 'Trait', 'tail_id': '7208f5d35131414890729fc7744eca84', 'head_text': 'Vanhorniidae', 'tail_text': 'parasitoids'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 298
-Number of exceptions: 0
-Data sample: {'sentence': 'A new species of <arthropod> Limnephilidae </arthropod> (Insecta: Trichoptera) <trait> from </trait> the Western Alps (Insecta: Trichoptera)\nAbstract\nA new species of the alpine caddisfly genus Consorophylax (Trichoptera, Limnephilidae, Stenophylacini) and the female of the recently described C. vinconi Graf & Malicky 2015 are described. The new species C. lepontiorum sp. nov. is a microendemic of the South-Western Alps and differs from its congeners in the shape of the superior and inferior appendages and the unique setation of the aedeagus, absent in all other Consorophylax species. The female of C. vinconi is characterized by the unique formation of the anal tube. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 634, 'head': [29, 42], 'tail': [87, 91], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Limnephilidae', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 14
-Number of exceptions: 0
-Data sample: {'sentence': 'A new species of <arthropod> Limnephilidae </arthropod> (Insecta: Trichoptera) <trait> from </trait> the Western Alps (Insecta: Trichoptera)\nAbstract\nA new species of the alpine caddisfly genus Consorophylax (Trichoptera, Limnephilidae, Stenophylacini) and the female of the recently described C. vinconi Graf & Malicky 2015 are described. The new species C. lepontiorum sp. nov. is a microendemic of the South-Western Alps and differs from its congeners in the shape of the superior and inferior appendages and the unique setation of the aedeagus, absent in all other Consorophylax species. The female of C. vinconi is characterized by the unique formation of the anal tube. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 634, 'head': [29, 42], 'tail': [87, 91], 'head_type': 'Arthropod', 'head_id': 'ef08427f5eb846169c916b8cd416d292', 'tail_type': 'Trait', 'tail_id': 'b261f385b34746019b819472ea9e6fa5', 'head_text': 'Limnephilidae', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 7371
-Number of exceptions: 0
-Data sample: {'sentence': 'A new species and new records of <arthropod> Engytatus </arthropod> <trait> from the </trait> Hawaiian Islands (Heteroptera, Miridae)\nAbstract\nEngytatushenryisp. n. is described from the Waianae Mountains of Oahu. This new species feeds on Abutilonsandwicense (Malvaceae), an endangered understory plant in mesic forests. A dorsal habitus photograph and line drawings of key male genitalic structures are provided for E.henryi, accompanied by a photograph of the host plant. Cyrtopeltiskahakai Asquith is given a new generic assignment as Engytatuskahakai (Asquith) new combination, and additional locality and host-plant records are provided for four other Hawaiian endemic Engytatus species.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 652, 'head': [45, 54], 'tail': [76, 84], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '1', 'head_text': 'Engytatus', 'tail_text': 'from the'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 8952
-Number of exceptions: 0
-Data sample: {'sentence': 'A new species and new records of Engytatus from the Hawaiian Islands (<arthropod> Heteroptera </arthropod>, Miridae)\nAbstract\nEngytatushenryisp. n. is described <trait> from </trait> the Waianae Mountains of Oahu. This new species feeds on Abutilonsandwicense (Malvaceae), an endangered understory plant in mesic forests. A dorsal habitus photograph and line drawings of key male genitalic structures are provided for E.henryi, accompanied by a photograph of the host plant. Cyrtopeltiskahakai Asquith is given a new generic assignment as Engytatuskahakai (Asquith) new combination, and additional locality and host-plant records are provided for four other Hawaiian endemic Engytatus species.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 652, 'head': [82, 93], 'tail': [169, 173], 'head_type': 'Arthropod', 'head_id': '285d0eadd9a04334a3dec31b33e325cc', 'tail_type': 'Trait', 'tail_id': '512aadd6399647a7988f0d0009ddcdda', 'head_text': 'Heteroptera', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 12
-Number of tagged data samples: 21181
-Number of exceptions: 12
-Data sample: {'sentence': 'First record of <arthropod> Eubroncus </arthropod> (Hymenoptera, Mymaridae) <trait> from </trait> China, with description of three new species\nAbstract\nThe genus Eubroncus Yoshimoto, Kozlov & Trjapitzin is first recorded from China, and three species, E. hani sp. n., E. tibetanus sp. n. and E. vertexus sp. n. are described as new. A key to the six described species is given, with photomicrographs to illustrate morphological characters.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 398, 'head': [28, 37], 'tail': [84, 88], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Eubroncus', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 21115
-Number of exceptions: 0
-Data sample: {'sentence': 'First record of <arthropod> Eubroncus </arthropod> (Hymenoptera, Mymaridae) <trait> from </trait> China, with description of three new species\nAbstract\nThe genus Eubroncus Yoshimoto, Kozlov & Trjapitzin is first recorded from China, and three species, E. hani sp. n., E. tibetanus sp. n. and E. vertexus sp. n. are described as new. A key to the six described species is given, with photomicrographs to illustrate morphological characters.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 398, 'head': [28, 37], 'tail': [84, 88], 'head_type': 'Arthropod', 'head_id': 'f389a03b33964b73b77c5d07d782c630', 'tail_type': 'Trait', 'tail_id': '4f05606a905b4c5ba18c271568f101b7', 'head_text': 'Eubroncus', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 30381
-Number of exceptions: 0
-Data sample: {'sentence': 'Description of a new species of <arthropod> Zeuxevania </arthropod> Kieffer (Hymenoptera: Evaniidae) <trait> from </trait> India with a key to species\nAbstract\nBackground\nTaxonomy and diversity of Evaniidae from India have not been studied in depth and hosts of many species are unknown. Out of 31 world genera, only five genera (Evania Fab., Prosevania Kieffer, Szepligetella Bradley, Vernevania Huben & Deans and Zeuxevania Kieffer) are reported from India. Based on the collection deposited in the Hymenoptera section of Zoological Survey of India (National Zoological Collection), here we are describing a new species of the genus Zeuxevania.\nNew information\nA new evaniid species Zeuxevania hubeni sp. nov. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 670, 'head': [44, 54], 'tail': [109, 113], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '2', 'head_text': 'Zeuxevania', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 34766
-Number of exceptions: 0
-Data sample: {'sentence': 'Description of a new species of <arthropod> Zeuxevania </arthropod> Kieffer (Hymenoptera: Evaniidae) <trait> from </trait> India with a key to species\nAbstract\nBackground\nTaxonomy and diversity of Evaniidae from India have not been studied in depth and hosts of many species are unknown. Out of 31 world genera, only five genera (Evania Fab., Prosevania Kieffer, Szepligetella Bradley, Vernevania Huben & Deans and Zeuxevania Kieffer) are reported from India. Based on the collection deposited in the Hymenoptera section of Zoological Survey of India (National Zoological Collection), here we are describing a new species of the genus Zeuxevania.\nNew information\nA new evaniid species Zeuxevania hubeni sp. nov. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 670, 'head': [44, 54], 'tail': [109, 113], 'head_type': 'Arthropod', 'head_id': '833373d3624a4037971905b669f33a3f', 'tail_type': 'Trait', 'tail_id': '764125a7d8ce4f53ac687fc66bc8dab2', 'head_text': 'Zeuxevania', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 2304
-Number of exceptions: 0
-Data sample: {'sentence': 'First report of <arthropod> Tequus schrottkyi </arthropod> (Konow) (Hymenoptera: Pergidae) <trait> in </trait> Uruguay, and information about its host plant and biology\nAbstract\nBackground\nThe sawfly family Pergidae is best represented in South America, and it is the third largest family in the suborder Symphyta. Tequus is a Neotropical genus that has been reported in association with host plants of the genus Solanum (Solanaceae), with little information about the life history of its members. Tequus schrottkyi (Konow, 1906) was described from Paraguay, without any information about its biology and host plant.\nNew information\nWe report the first record of T. schrottkyi from Uruguay, with information on its host plant and details of its biology. The identification was based on morphology, DNA barcode is provided to allow identification using molecular characters. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 832, 'head': [28, 45], 'tail': [99, 101], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Tequus schrottkyi', 'tail_text': 'in'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 557
-Number of exceptions: 0
-Data sample: {'sentence': 'First report of <arthropod> Tequus schrottkyi </arthropod> (Konow) (Hymenoptera: Pergidae) in Uruguay, and information about its host plant and biology\nAbstract\nBackground\nThe sawfly family Pergidae is best represented in South America, and it is the third largest family in the suborder Symphyta. Tequus is a Neotropical genus that has been reported in <trait> association with </trait> host plants of the genus Solanum (Solanaceae), with little information about the life history of its members. Tequus schrottkyi (Konow, 1906) was described from Paraguay, without any information about its biology and host plant.\nNew information\nWe report the first record of T. schrottkyi from Uruguay, with information on its host plant and details of its biology. The identification was based on morphology, DNA barcode is provided to allow identification using molecular characters. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 832, 'head': [28, 45], 'tail': [362, 378], 'head_type': 'Arthropod', 'head_id': '2bb75638accc43189cfdf3842665c0ec', 'tail_type': 'Trait', 'tail_id': '3c396ba5f2e8477887d90b125439bbde', 'head_text': 'Tequus schrottkyi', 'tail_text': 'association with'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 60
-Number of exceptions: 0
-Data sample: {'sentence': 'Description of a new, unusual species of <arthropod> Diestostemma </arthropod> Amyot & Serville (Hemiptera, Cicadellidae) <trait> from </trait> Ecuador\nAbstract\nDiestostemma bicristatasp. nov., is described from Napo Province, Ecuador. It is unusual for the genus in lacking a visible white powdery covering, having raised, weakly reticulate veins on the forewing, a short metathoracic femur (half length of the metathoracic tibia), and is the only species with a double-crested pronotum.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 447, 'head': [53, 65], 'tail': [130, 134], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Diestostemma', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 7
-Number of exceptions: 0
-Data sample: {'sentence': 'Description of a new, unusual species of <arthropod> Diestostemma </arthropod> Amyot & Serville (Hemiptera, Cicadellidae) from Ecuador\nAbstract\nDiestostemma bicristatasp. nov., is described <trait> from </trait> Napo Province, Ecuador. It is unusual for the genus in lacking a visible white powdery covering, having raised, weakly reticulate veins on the forewing, a short metathoracic femur (half length of the metathoracic tibia), and is the only species with a double-crested pronotum.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 447, 'head': [53, 65], 'tail': [198, 202], 'head_type': 'Arthropod', 'head_id': '3b922048fef940dca7c4929c8785ee37', 'tail_type': 'Trait', 'tail_id': '59ce286543624bae81f4e379f8754d15', 'head_text': 'Diestostemma', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 119
-Number of exceptions: 0
-Data sample: {'sentence': 'First record of <arthropod> Trissolcus basalis </arthropod> (Hymenoptera: Scelionidae) <trait> parasitizing </trait> Halyomorpha halys (Hemiptera: Pentatomidae) in the United States\nAbstract\nBackground\nA parasitoid wasp, Trissolcus basalis (Wollaston), was recorded parasitizing eggs of the invasive stink bug Halyomorpha halys (Stål) in the United States. This is the first record of this species parasitizing fresh and frozen eggs of H. halys in the United States.\nNew information\nFirst record of Trissolcus basalis parasitizing Halyomorpha halys eggs in the United States.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 534, 'head': [28, 46], 'tail': [95, 107], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '3', 'head_text': 'Trissolcus basalis', 'tail_text': 'parasitizing'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 48
-Number of exceptions: 0
-Data sample: {'sentence': 'First record of <arthropod> Trissolcus basalis </arthropod> (Hymenoptera: Scelionidae) <trait> parasitizing </trait> Halyomorpha halys (Hemiptera: Pentatomidae) in the United States\nAbstract\nBackground\nA parasitoid wasp, Trissolcus basalis (Wollaston), was recorded parasitizing eggs of the invasive stink bug Halyomorpha halys (Stål) in the United States. This is the first record of this species parasitizing fresh and frozen eggs of H. halys in the United States.\nNew information\nFirst record of Trissolcus basalis parasitizing Halyomorpha halys eggs in the United States.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 534, 'head': [28, 46], 'tail': [95, 107], 'head_type': 'Arthropod', 'head_id': '05e9361f6ef44186b53ed8dbfe3d3350', 'tail_type': 'Trait', 'tail_id': 'd58c63c3ece6425aa3045bf9b865908e', 'head_text': 'Trissolcus basalis', 'tail_text': 'parasitizing'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 513
-Number of exceptions: 0
-Data sample: {'sentence': 'New records of <arthropod> Paraleptophlebia werneri </arthropod> Ulmer, 1920 and Paraleptophlebia strandii (Eaton, 1901) <trait> from </trait> Finland (Ephemeroptera, Leptophlebiidae)\nAbstract\nThe mayfly species Paraleptophlebia werneri has been rediscovered from Finland. The species was classified as RE (regionally extinct) in the most recent national red-list assessment. The new locality is close to the Russian border in NE Lapland, Savukoski. Adult males were collected with a sweep net around a pond. Paraleptophlebia strandii is a rather poorly known but widespread Finnish species. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 550, 'head': [27, 51], 'tail': [129, 133], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '2', 'head_text': 'Paraleptophlebia werneri', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 26
-Number of exceptions: 0
-Data sample: {'sentence': 'New records of <arthropod> Paraleptophlebia werneri </arthropod> Ulmer, 1920 and Paraleptophlebia strandii (Eaton, 1901) <trait> from </trait> Finland (Ephemeroptera, Leptophlebiidae)\nAbstract\nThe mayfly species Paraleptophlebia werneri has been rediscovered from Finland. The species was classified as RE (regionally extinct) in the most recent national red-list assessment. The new locality is close to the Russian border in NE Lapland, Savukoski. Adult males were collected with a sweep net around a pond. Paraleptophlebia strandii is a rather poorly known but widespread Finnish species. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 550, 'head': [27, 51], 'tail': [129, 133], 'head_type': 'Arthropod', 'head_id': 'e5c12548f731412f9d26b19ea09381cf', 'tail_type': 'Trait', 'tail_id': '6924f985ab3d445bb09725c84346ba6f', 'head_text': 'Paraleptophlebia werneri', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 57
-Number of exceptions: 0
-Data sample: {'sentence': 'A revision of <arthropod> Dolichogenidea </arthropod> (Hymenoptera, Braconidae, Microgastrinae) with the second mediotergite broadly rectangular from Area de Conservación Guanacaste, Costa Rica\nAbstract\nThe first species of Dolichogenidea (Hymenoptera: Braconidae, Microgastrinae) with the <trait> second mediotergite </trait> broadly quadrate to rectangular are revised, and eight new species from Area de Conservación Guanacaste (ACG), Costa Rica are described, all authored by Fernandez-Triana & Boudreault: alejandromasisi, angelagonzalezae, carlosmanuelrodriguezi, genuarnunezi, josealfredohernandezi, melaniamunozae, rogerblancoi, and yeimycedenoae. A new species group (carlosmanuelrodriguezi) within the genus is proposed to accommodate those species, as well as additional undescribed species from the Neotropical region found in collections. All new species are found in rainforests (120–900 m) and all are parasitoids of Depressariidae (except for one species parasitizing Choreutidae). The unique shape of the second mediotergite and long ovipositor are features shared with the alejandromorai species group in the genus Apanteles, an example of convergent evolution; both wasp groups also parasitize similar hosts in ACG.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 1193, 'head': [26, 40], 'tail': [298, 317], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '8', 'head_text': 'Dolichogenidea', 'tail_text': 'second mediotergite'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 33
-Number of exceptions: 0
-Data sample: {'sentence': 'A revision of <arthropod> Dolichogenidea </arthropod> (Hymenoptera, Braconidae, Microgastrinae) with the second mediotergite broadly rectangular from Area de Conservación Guanacaste, Costa Rica\nAbstract\nThe first species of Dolichogenidea (Hymenoptera: Braconidae, Microgastrinae) with the second mediotergite broadly quadrate to rectangular are revised, and eight new species from Area de Conservación Guanacaste (ACG), Costa Rica are described, all authored by Fernandez-Triana & Boudreault: alejandromasisi, angelagonzalezae, carlosmanuelrodriguezi, genuarnunezi, josealfredohernandezi, melaniamunozae, rogerblancoi, and yeimycedenoae. A new species group (carlosmanuelrodriguezi) within the genus is proposed to accommodate those species, as well as additional undescribed species from the Neotropical region found in collections. All new species are found in rainforests (120–900 m) and all are <trait> parasitoids </trait> of Depressariidae (except for one species parasitizing Choreutidae). The unique shape of the second mediotergite and long ovipositor are features shared with the alejandromorai species group in the genus Apanteles, an example of convergent evolution; both wasp groups also parasitize similar hosts in ACG.\n', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 1193, 'head': [26, 40], 'tail': [908, 919], 'head_type': 'Arthropod', 'head_id': 'd9f7304a60fb47cb99b38d10dd9783d7', 'tail_type': 'Trait', 'tail_id': '1e41b1ce57bf48eb823f7f40d9d033d7', 'head_text': 'Dolichogenidea', 'tail_text': 'parasitoids'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 3583
-Number of exceptions: 0
-Data sample: {'sentence': '<value> Two </value> <trait> new species </trait> of Centrodora (Hymenoptera, Aphelinidae) from China, with a key to Chinese species\nAbstract\nTwo new species of Centrodora Förster, C. crassiscapa sp. n. and C. pellucida sp. n., are described from China. A key to species from China based on females is given.\nIntroduction\nCentrodora Förster, 1878 currently comprises 61 species (Noyes 2017). ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 358, 'head': [8, 11], 'tail': [29, 40], 'head_type': 'Value', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '1', 'head_text': 'Two', 'tail_text': 'new species'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 11688
-Number of exceptions: 0
-Data sample: {'sentence': 'Two new species of <arthropod> Centrodora </arthropod> (Hymenoptera, Aphelinidae) <trait> from </trait> China, with a key to Chinese species\nAbstract\nTwo new species of Centrodora Förster, C. crassiscapa sp. n. and C. pellucida sp. n., are described from China. A key to species from China based on females is given.\nIntroduction\nCentrodora Förster, 1878 currently comprises 61 species (Noyes 2017). ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 358, 'head': [31, 41], 'tail': [90, 94], 'head_type': 'Arthropod', 'head_id': '1290d7808eee441a9b782aa92cf96ddf', 'tail_type': 'Trait', 'tail_id': '55b118aed52849b2a45b251d82ec5911', 'head_text': 'Centrodora', 'tail_text': 'from'}
-Samples processed ==> ______0 | Exceptions ==> ___0
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 149
-Number of exceptions: 0
-Data sample: {'sentence': 'A review of the genus <arthropod> Pelodiaetus </arthropod> Jeannel (Coleoptera, Carabidae, Anillini) <trait> of </trait> New Zealand, with re-description of the genus, description of a new species, and notes on the evolutionary history\nAbstract\nOn the basis of new morphological data a re-description of the genus Pelodiaetus is provided, a new species of the genus P. nunnisp. nov. (Christchurch, Canterbury, South Island) is described, and P. lewisi Jeannel is proposed as a synonym of P. sulcatipennis Jeannel, syn. nov. A taxonomic key as well as distribution maps for species of Pelodiaetus are provided. ', 'relation': 'undefined', 'context_start_char': 0, 'context_end_char': 568, 'head': [34, 45], 'tail': [109, 111], 'head_type': 'Arthropod', 'head_id': '0', 'tail_type': 'Trait', 'tail_id': '4', 'head_text': 'Pelodiaetus', 'tail_text': 'of'}
-
-Tagging done!
-Overlapping entities: 0
-Number of tagged data samples: 0
-Number of exceptions: 0
-Cannot print data sample: list index out of range
+Data sample: {'sentence': 'Müller, 1776) Notes localities no. 1-9, 11, 13, 16, 19, 20, 21. Distribution : AT, AU, NA, NT, OL, PAC, PA. <arthropod> Graptoleberis testudinaria </arthropod> (Fischer, 1848) Notes locality no. 17. <trait> Distribution </trait> (subsp. ', 'relation': 'undefined', 'context_start_char': 4420, 'context_end_char': 4615, 'head': [120, 146], 'tail': [207, 219], 'head_type': 'Arthropod', 'head_id': '3148c03d6ab54a869101667c01486770', 'tail_type': 'Trait', 'tail_id': '156375d36d434dc8adedb88e59221d85', 'head_text': 'Graptoleberis testudinaria', 'tail_text': 'Distribution'}
