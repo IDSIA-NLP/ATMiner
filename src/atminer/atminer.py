@@ -828,7 +828,7 @@ class ATMiner(object):
             input_file_paths = [f'{self.config["input"]["path"]}{self.config["input"]["file"]}.{self.config["input"]["extension"]}']
         elif self.config["input"]["type"] == "multiple":
             self.logger.info("Loading multiple document paths.")
-            input_file_paths =  glob.glob(f'{self.config["input"]["path"]}*')
+            input_file_paths =  glob.glob(f'{self.config["input"]["path"]}*/*')
         else:
             self.logger.error("Input type not supported.")
             raise ValueError("Input type not supported.")
@@ -1008,7 +1008,7 @@ class ATMiner(object):
             # with open(f'../logs/debugging/{time_now}-NER_REPORT_WITH_PRED-{self.config["input"]["file"]}.txt', 'w') as f:
             #      f.write(re_report_with_pred_entities)
 
-            self._write_eval_report(self.config["input"]["file"], 
+            self._write_eval_report(input_file_path.split("/")[-1], 
                                 ner_report, 
                                 re_report_with_gold_entities, 
                                 re_report_with_pred_entities, 

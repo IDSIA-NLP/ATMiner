@@ -1,5 +1,5 @@
 input:
-  path: ../data/tmp/input_eval_test_data/rmwaterhouse/
+  path: ../data/tmp/input_eval_test_data/
   file: aac2zSGIXr5fjZvJjneWFa8N9jFK-zookeys.110.59530.bioc
   #file: awqipQxjojnzAwukvMo3ZZv9r3KW-zookeys.687.13164.bioc
   extension: json
@@ -19,7 +19,7 @@ ner:
   # Base HuggingFace Transformer configs
   model: base_transformer
   version: v1.0.1
-  model_path: 2022-11-10-18-38_NER_dmis-lab-biobert-large-cased-v1.1_test_model
+  model_path: 2023-09-12-16-25_NER_dmis-lab-biobert-large-cased-v1.1_test_model
   from_local: True
   max_seq_length: 512
   aggregation_strategy: average #simple, first, average, max
@@ -45,7 +45,7 @@ nen:
 rel_ext:
   model: luke # luke
   version: v1.0.1
-  model_path: 2023-04-16-12-48_RE_studio-ousia-luke-large_luke-eval-data-v2_context-size-6_tagged-entities_none_class_balanced_ml-512_lr-0.00_bs-16_ep-2 # from the cloud "studio-ousia/luke-large-finetuned-tacred"
+  model_path: 2023-08-27-11-55_RE_studio-ousia-luke-large_luke-eval-data-v2_context-size-6_tagged-entities_none_class_balanced_ml-512_lr-0.00_bs-16_ep-4 # from the cloud "studio-ousia/luke-large-finetuned-tacred"
   from_local: True
   prune_mode: random # random, ...
   max_seq_length: 512
@@ -56,7 +56,7 @@ nlp:
   model: en_core_web_sm
 
 context:
-  size: 2
+  size: 6
 
 models:
   path: ../data/resources/models/
