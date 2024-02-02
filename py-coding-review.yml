@@ -1,0 +1,84 @@
+# Coding Review
+generalCodingStandards:
+  namingConventions:
+    classes:
+      capitalizedWords: true
+    functions:
+      snake_case: true
+    variables:
+      snake_case: true
+    constants:
+      UPPERCASE_WITH_UNDERSCORES: true
+    modules:
+      short_lowercase: true
+      
+  codingStandards:
+    indentation:
+      type: spaces
+      size: 4
+    lineLength: 119
+    imports:
+      order:
+      - builtins
+      - third_party 
+      - local_project
+    comments:
+      docStrings:
+        style: Google
+      inline:
+        prefix: "#"
+
+codeReviewChecklist:
+  orderOfImportance:
+    - Security and core features
+    - Performance and maintainability
+    - Readability and documentation
+    - Naming conventions and automatable tasks
+    - Personal preferences and aesthetics
+
+  steps:
+    - step: Verify feature requirements
+      enabled: true
+      questions:
+        - description: Does the code fulfill the end user's requirements without missing or poorly implemented functions?
+          enabled: true
+        - description: Are there opportunities to add related functions that could enhance user experience?
+          enabled: true
+
+    - step: Assess readability
+      enabled: true
+      questions:
+        - description: Is the code well-structured, fitting within standard screen sizes, and self-explanatory for its purpose?
+          enabled: true
+        - description: Are functions, methods, or classes roles clear and broken into understandable segments?
+          enabled: true
+
+    - step: Test maintainability
+      enabled: true
+      questions:
+        - description: Is the code easily testable, debuggable, and adaptable without reliance on outdated systems or technologies?
+          enabled: true
+
+    - step: Check for security vulnerabilities
+      enabled: true
+      questions:
+        - description: Does the code avoid the use of outdated or insecure tools, properly handle user input, and securely manage sensitive data?
+          enabled: true
+
+    - step: Consider speed and performance
+      enabled: true
+      questions:
+        - description: Is the code optimized for efficiency, avoiding unnecessary resource consumption, duplicate code, and poorly optimized assets?
+          enabled: true
+
+    - step: Confirm adequate documentation
+      enabled: true
+      questions:
+        - description: Is the code and its updates thoroughly documented, providing clear usage instructions and explaining its purpose?
+          enabled: true
+
+    - step: Inspect naming conventions
+      enabled: true
+      questions:
+        - description: Do variable, constant, class field, property, and method names adhere to business conventions and clearly convey their function and context?
+          enabled: true
