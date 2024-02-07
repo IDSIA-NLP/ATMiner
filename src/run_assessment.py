@@ -18,6 +18,7 @@ import time
 import pandas as pd
 import os
 from pathlib import Path
+import math
 
 import matplotlib.pyplot as plt
 
@@ -205,6 +206,67 @@ def create_dataframe_from_entities(output_files):
     df_entities = df_entities.fillna(value=np.nan)
     return df_entities
 
+def create_relation_dict(r, entity_id_to_native_id):
+    """
+    Create a dictionary from a relation.
+
+    Args:
+        r (bconv.doc.relation.Relation): The relation to be converted.
+
+    Returns:
+        dict: The relation as a dictionary.
+    """
+
+    relation_id = r.id
+    relation_type = r.metadata["type"]
+    relation_member_1_id = r[0].refid
+    relation_member_1_type = r[0].role
+    relation_member_1_native_id = entity_id_to_native_id[relation_member_1_id]
+    relation_member_2_id = r[1].refid
+    relation_member_2_type = r[1].role
+    relation_member_2_native_id = entity_id_to_native_id[relation_member_2_id]
+
+    extracted_relation = {
+        "id": relation_id,
+        "type": relation_type,
+        "member_1_id": relation_member_1_id,
+        "member_1_type": relation_member_1_type,
+        "member_1_native_id": relation_member_1_native_id,
+        "member_2_id": relation_member_2_id,
+        "member_2_type": relation_member_2_type,
+        "member_2_native_id": relation_member_2_native_id
+    }
+    
+    return extracted_relation
+
+
+def load_dataframe_from_relations(output_files, entity_id_to_native_id):
+    """
+    Load a dataframe from all relations.
+
+    Args:
+        output_files (dict): The output files.
+
+    Returns:
+        pd.DataFrame: The dataframe containing all relations.
+    """
+    all_relations = []
+    for filename, element in output_files.items():
+        if isinstance(element, bconv.doc.document.Collection):
+            doc = element[0]     
+        elif isinstance(element, bconv.doc.document.Document):
+            doc = element
+        else:
+            raise TypeError("Document type not supported")
+        
+        for r in doc.iter_relations():
+            extracted_relation = create_relation_dict(r,entity_id_to_native_id)
+            all_relations.append(extracted_relation)
+    
+    # Create dataframe from all relations
+    df_relations = pd.DataFrame(all_relations)
+    df_relations = df_relations.fillna(value=np.nan)
+    return df_relations
 
 def write_native_id_entity_type_report(df_entities, output_path):
     """
@@ -414,7 +476,7 @@ def assess_entity_normalization(predicted_output_path="../data/tmp/output_test/r
     Goals:
     1. For each entity determine how many of the listed entities in the termlist are found 
         in on of the automated documents.
-    2. For all of the found entities determine the frequence counts of the specific term
+    2. For all of the found entities determine the frequency counts of the specific term
         found and the number of variations of the term
         (e.g. feeds, feeding, feed --> 3 variations found)
 
@@ -502,6 +564,187 @@ def assess_entity_normalization(predicted_output_path="../data/tmp/output_test/r
                       traits_habitat_termlist_found, 
                       traits_morphology_termlist_found)
     
+
+
+def assess_relationship_identification_in_eol_taxon_traits(predicted_output_path = "../data/tmp/output_test/run-20230517-190035054078/", eol_trait_arthro_relation_path = "../data/resources/eol_relations/traits_arthro_relationship.tsv", arthro_col_to_eol_path = "../data/resources/eol_relations/Taxon_arthro_eol_sm.tsv", output_dir = "../data/assessments/"):
+    """ 
+    Assessing Relationship Identification with the Encyclopedia of Life Taxon Traits.
+
+    Goals:
+        1. Asses how many of the relationship listed in the EOL taxon-trait table could be found by model in all the automatically annotated files
+        2. Determine the frequency count of found relations
+        3. Determine how many of the EOL entities that are base of the relations can be found and in comparison how many of those lead to finally found relation
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    
+
+    eol_relation_assessment_report = {}
+
+    # Use pathlib.Path to iterate over the files
+    run_id = predicted_output_path.split("/")[-2]
+    output_files = load_output_files(predicted_output_path)
+
+    logger.info(f'Loaded {len(output_files)} output files')
+
+    # Create output path if not exists
+    output_path = create_output_path(output_dir, run_id)
+
+    # Load all entities from predicted output documents
+    df_entities = create_dataframe_from_entities(output_files)
+
+    # Log some information about the entities
+    logger.debug(f'DF_Entities: Loaded {len(df_entities)} entities')
+    logger.debug(f'DF_Entities: Columns: {df_entities.columns}')
+    logger.debug(f'DF_Entities: Head: {df_entities.head()}')
+    logger.debug(f'DF_Entities: Most frequent entities (top 10)')
+    logger.debug(f'{df_entities["text"].value_counts().head(10)}')
+
+    entity_id_to_native_id = df_entities.set_index("id")["native_id"].to_dict()
+
+    # Load all relations from predicted output documents
+    df_relations = load_dataframe_from_relations(output_files, entity_id_to_native_id)
+    eol_relation_assessment_report["number_of_found_relations"] = len(df_relations)
+
+    df_relations_hasTrait = df_relations[df_relations["type"] == "hasTrait"]
+    eol_relation_assessment_report["number_of_found_hasTrait_relations"] = len(df_relations_hasTrait)
+
+    # Log some information about the relations
+    logger.debug(f'DF_Relations: Loaded {len(df_relations)} relations')
+    logger.debug(f'DF_Relations: Columns: {df_relations.columns}')
+    logger.debug(f'DF_Relations: Head: {df_relations.head()}')
+
+    # Load EOL trait-arthropod relationships
+    # Column names: Description
+    #   predicate: Unique identifier for eol trait term
+    #   term_name: Name of the trait
+    #   page_id: EOL arthropod page id (unique identifier)
+    #   canonical: Canonical/Taxon name of the arthropod
+    #   normal_units_uri: URI for the units/values of the trait
+    #   literal: Value of the trait if there is specific value
+    logger.debug(f'Load EOL trait-arthropod relationships ...')
+    df_eol_trait_arthro_relation = pd.read_csv(eol_trait_arthro_relation_path, sep="\t")
+    logger.debug(f'Loaded {len(df_eol_trait_arthro_relation)} EOL trait-arthropod relationships')
+    logger.debug(f'Columns: {df_eol_trait_arthro_relation.columns}')
+    logger.debug(f'Head: {df_eol_trait_arthro_relation.head()}')
+
+    # Casr page_id to data type str
+    df_eol_trait_arthro_relation["page_id"] = df_eol_trait_arthro_relation["page_id"].astype(str)
+
+    # Set of tuples (page_id, predicate) for EOL trait-arthropod relationships
+    eol_relation_arthro_traits_ids = set(df_eol_trait_arthro_relation[["page_id", "predicate"]].apply(tuple, axis=1))
+    logger.debug(f"First 10 EOL trait-arthropod relationships: {list(eol_relation_arthro_traits_ids)[:10]}")
+    logger.debug(f'Data type of page_id, predicate: {type(list(eol_relation_arthro_traits_ids)[0][0])}, {type(list(eol_relation_arthro_traits_ids)[0][1])}')
+    logger.debug(f'Number of unique EOL arthropod traits relations: {len(eol_relation_arthro_traits_ids)}')
+    eol_relation_assessment_report["number_of_unique_eol_arthropod_traits_relations"] = len(eol_relation_arthro_traits_ids)
+
+    # Set of unique EOL trait ids
+    eol_trait_ids = df_eol_trait_arthro_relation["predicate"].unique()
+    logger.debug(f'Number of unique EOL trait ids: {len(eol_trait_ids)}')
+    eol_relation_assessment_report["number_of_unique_eol_trait_ids_in_eol_rel"] = len(eol_trait_ids)
+
+    # Number of unique EOL arthropod page ids
+    eol_arthropod_page_ids = df_eol_trait_arthro_relation["page_id"].unique()
+    logger.debug(f'Number of unique EOL arthropod page ids: {len(eol_arthropod_page_ids)}')
+    eol_relation_assessment_report["number_of_unique_eol_arthropod_page_ids_in_eol_rel"] = len(eol_arthropod_page_ids)
+
+    # Load COL arthropods id to EOL page id
+    # Column names: Description
+    #   dwc:taxonID: Unique identifier for COL arthropod
+    #   eol:pageIDs: EOL arthropod page id (unique identifier)
+    #   taxonomicName: Canonical/Taxon name of the arthropod
+    logger.debug(f'Load COL arthropods id to EOL page id ...')
+    df_arthro_col_to_eol = pd.read_csv(arthro_col_to_eol_path, sep="\t")
+    logger.debug(f'Loaded {len(df_arthro_col_to_eol)} COL arthropods id to EOL page id')
+    logger.debug(f'Columns: {df_arthro_col_to_eol.columns}')
+    logger.debug(f'Head: {df_arthro_col_to_eol.head()}')
+
+    # Number of eol:pageIDs that contain "|"
+    logger.debug(f'Number of eol:pageIDs that contain "|" ...')
+    df_arthro_col_to_eol_without_na = df_arthro_col_to_eol.dropna()
+    eol_page_ids_with_pipe = df_arthro_col_to_eol_without_na[df_arthro_col_to_eol_without_na["eol:pageIDs"].str.contains("\|")]
+    logger.debug(f'Number of eol:pageIDs that contain "|: {len(eol_page_ids_with_pipe)}')
+
+    # Transfrom page_id to data type int
+    # df_arthro_col_to_eol["eol:pageIDs"] = df_arthro_col_to_eol["eol:pageIDs"].astype(np.float).astype("Int32")
+
+    col_to_eol_id = df_arthro_col_to_eol.dropna(subset=['dwc:taxonID']).set_index("dwc:taxonID")["eol:pageIDs"].to_dict()
+    eol_to_col_id = df_arthro_col_to_eol.set_index("eol:pageIDs")["dwc:taxonID"].to_dict()
+
+    # Remove nan key from 
+    col_to_eol_id = {k: v for k, v in col_to_eol_id.items() if not pd.isnull(k) and k != "nan"}
+    eol_to_col_id = {k: v for k, v in eol_to_col_id.items() if not pd.isnull(k) and k != "nan"}
+
+
+    # Percent of eol arthropods that appear in the eol trait-arthropod relationships
+    logger.debug(f'Percent of eol arthropods that appear in the eol trait-arthropod relationships ...')
+    percent_eol_arthropods_in_eol_rel = len(set(eol_to_col_id.keys()).intersection(eol_arthropod_page_ids)) / len(eol_to_col_id)
+    logger.debug(f'Percent of eol arthropods that appear in the eol trait-arthropod relationships: {percent_eol_arthropods_in_eol_rel}')
+    eol_relation_assessment_report["percent_eol_arthropods_in_eol_rel"] = percent_eol_arthropods_in_eol_rel
+
+    # How many arthropods found arthropods in the EOL trait-arthropod relationships
+    logger.debug(f'How many arthropods found arthropods in the EOL trait-arthropod relationships ...')
+    arthropods_found = df_entities[df_entities["type"] == "Arthropod"]["native_id"]
+    arthropods_found_in_eol = [col_to_eol_id[arthropod_id] for arthropod_id in arthropods_found if arthropod_id in col_to_eol_id.keys()]
+    logger.debug(f"Data type of arthropods_found_in_eol: {type(arthropods_found_in_eol[0])}")
+    arthropods_found_in_eol = [arthropod_id for arthropod_id in arthropods_found_in_eol if arthropod_id in eol_arthropod_page_ids]
+    logger.debug(f'Number of arthropods found in EOL trait-arthropod relationships: {len(arthropods_found_in_eol)}')
+    eol_relation_assessment_report["number_of_arthropods_found_in_eol_rel"] = len(arthropods_found_in_eol)
+    eol_relation_assessment_report["number_of_unique_arthropods_found_in_eol_rel"] = len(set(arthropods_found_in_eol))
+
+    # How many of the found traits are in the EOL trait-arthropod relationships
+    logger.debug(f'How many of the found traits are in the EOL trait-arthropod relationships ...')
+    traits_found = df_entities[df_entities["type"] == "Trait"]["native_id"]
+    traits_found_in_eol = [trait_id for trait_id in traits_found if trait_id in eol_trait_ids]
+    logger.debug(f'Number of traits found in EOL trait-arthropod relationships: {len(traits_found_in_eol)}')
+    eol_relation_assessment_report["number_of_traits_found_in_eol_rel"] = len(traits_found_in_eol)
+    eol_relation_assessment_report["number_of_unique_traits_found_in_eol_rel"] = len(set(traits_found_in_eol))
+
+    # Identify how many of the found hasTrait relations are in the EOL trait-arthropod relationships
+    logger.debug(f'Identify how many of the found HAS_TRAIT relations are in the EOL trait-arthropod relationships ...')
+    matching_relations = {}
+    for index, row in df_relations_hasTrait.iterrows():
+        if row["member_1_type"] == "Arthropod" and row["member_2_type"] == "Trait":
+            # Check if arthropod is found in EOL
+            arthropod_eol_id = col_to_eol_id.get(row["member_1_native_id"], None)
+            if arthropod_eol_id:
+                try:
+                    for member_1_native_id_as_eol_page_id in col_to_eol_id[row["member_1_native_id"]].split("|"):
+                        if (member_1_native_id_as_eol_page_id, row["member_2_native_id"]) in eol_relation_arthro_traits_ids:
+                            matching_relations[(row["member_1_native_id"], row["member_2_native_id"])] = row["type"]
+                except:
+                    logger.debug(f'Error: {row["member_1_native_id"]}, {col_to_eol_id[row["member_1_native_id"]]}')
+                
+        elif row["member_1_type"] == "Trait" and row["member_2_type"] == "Arthropod":
+            # Check if arthropod is found in EOL
+            arthropod_eol_id = col_to_eol_id.get(row["member_2_native_id"], None)
+            if arthropod_eol_id:
+                logger.debug(f'Arthropod found in EOL: {row["member_2_native_id"]}, {col_to_eol_id[row["member_2_native_id"]]}')
+                # log data type
+                logger.debug(f'Data type of arthropod_eol_id: {type(col_to_eol_id[row["member_2_native_id"]])}')
+                try: 
+                    # There problems with a nan value in the keys od col_to_eol_id
+                    for member_2_native_id_as_eol_page_id in col_to_eol_id[row["member_2_native_id"]].split("|"):
+                        if (member_2_native_id_as_eol_page_id, row["member_1_native_id"]) in eol_relation_arthro_traits_ids:
+                            matching_relations[(row["member_2_native_id"], row["member_1_native_id"])] = row["type"]
+                except:
+                    logger.debug(f'Error: {row["member_2_native_id"]}, {col_to_eol_id[row["member_2_native_id"]]}')
+        else:
+            # Not the right type of relation
+            pass
+
+    logger.debug(f'Number of matching relations: {len(matching_relations)}')
+    eol_relation_assessment_report["number_of_matching_hasTrait_relations"] = len(matching_relations)
+
+    # Write eol_relation_assessment_report to file
+    write_to_json(f"{output_path}eol_relation_assessment_report.json", eol_relation_assessment_report)
+
+
+    
 def main(logger):
     """ Get the configuration and run the ATMiner pipeline.
 
@@ -515,9 +758,11 @@ def main(logger):
     logger.info(f'Start assessments ...')
 
     # Assessing Entity Normalization with the Taxon and Trait Dictionaries
-    assess_entity_normalization()
+    # assess_entity_normalization()
 
-
+    # Assessing Relationship Identification with the Encyclopedia of Life Taxon Traits
+    assess_relationship_identification_in_eol_taxon_traits()
+    
 # --------------------------------------------------------------------------------------------
 #                                          RUN
 # --------------------------------------------------------------------------------------------
