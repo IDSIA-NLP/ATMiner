@@ -1,10 +1,11 @@
 input:
-  path: ../data/tmp/input_eval_test_data/
-  file: aac2zSGIXr5fjZvJjneWFa8N9jFK-zookeys.110.59530.bioc
+  path: ../data/tmp/input_eval_test_data/rmwaterhouse/ # the path to the input data
+  file: aAogTBmJ98z9XwuUtlfjI.kMDEeu-BDJ.9.e59487.bioc # the name of the input file without the extension and the path
   #file: awqipQxjojnzAwukvMo3ZZv9r3KW-zookeys.687.13164.bioc
-  extension: json
+  extension: json # json, txt
   format: bioc_json # bioc_json, txt
-  type: multiple # single, multiple
+  type: single # single, multiple, load_list (specify load list path in load_list field)
+  load_list: ../data/tmp/load_file_lists/all_pmc_load_file_list_sorted_asc.txt
 
 output:
   path: ../data/tmp/output_eval_test_data/
@@ -22,7 +23,7 @@ ner:
   model_path: 2023-09-12-16-25_NER_dmis-lab-biobert-large-cased-v1.1_test_model
   from_local: True
   max_seq_length: 512
-  aggregation_strategy: average #simple, first, average, max
+  aggregation_strategy: average #simple, first, average, max,
   
   # OGER configs
   # model: oger # oger
@@ -47,9 +48,13 @@ rel_ext:
   version: v1.0.1
   model_path: 2023-08-27-11-55_RE_studio-ousia-luke-large_luke-eval-data-v2_context-size-6_tagged-entities_none_class_balanced_ml-512_lr-0.00_bs-16_ep-4 # from the cloud "studio-ousia/luke-large-finetuned-tacred"
   from_local: True
-  prune_mode: random # random, ...
+  prune_mode: most_common # random, most_common, sorted
   max_seq_length: 512
   tag_entities: True
+
+# Postprocessing
+post_processing:
+  remove_impermissible_relations: False
 
 nlp:
   type: spacy

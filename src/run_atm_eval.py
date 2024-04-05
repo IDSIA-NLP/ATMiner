@@ -54,6 +54,7 @@ def main(logger):
 if __name__ == '__main__':
 
     # Setup logger
+    logger.remove() # Remove default logger
     logger.add("../logs/run_atm.log", rotation="1 MB", retention=5, level=_config()["logger"]["level"])
     logger.info(f'Start ...')
 

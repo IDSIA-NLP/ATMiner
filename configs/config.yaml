@@ -1,12 +1,13 @@
 input:
-  path: ../data/tmp/input_test_timing/
-  file: PMC4714060
-  extension: txt
+  path: ../data/tmp/input_test_timing/ # the path to the input data
+  file: PMC4714060 # the name of the input file without the extension and the path
+  extension: txt # json, txt
   format: txt # bioc_json, txt
-  type: multiple # single, multiple
+  type: load_list # single, multiple, load_list (specify load list path in load_list field)
+  load_list: ../data/tmp/load_file_lists/all_pmc_load_file_list_sorted_asc.txt
 
 output:
-  path: ../data/tmp/output_test/
+  path: ../data/tmp/output_all_pmc/
   # file: PMC3082967 Use input file name instead
   extension: bioc.json
   format: bioc_json # bioc_json
@@ -19,7 +20,7 @@ ner:
   # Base HuggingFace Transformer configs
   model: base_transformer
   version: v1.0.1
-  model_path: 2022-11-10-18-38_NER_dmis-lab-biobert-large-cased-v1.1_test_model
+  model_path: 2023-09-12-16-25_NER_dmis-lab-biobert-large-cased-v1.1_test_model
   from_local: True
   max_seq_length: 512
   aggregation_strategy: average #simple, first, average, max
@@ -45,11 +46,17 @@ nen:
 rel_ext:
   model: luke # luke
   version: v1.0.1
-  model_path: 2023-04-16-12-48_RE_studio-ousia-luke-large_luke-eval-data-v2_context-size-6_tagged-entities_none_class_balanced_ml-512_lr-0.00_bs-16_ep-2 # from the cloud "studio-ousia/luke-large-finetuned-tacred"
+  model_path: 2023-08-27-11-55_RE_studio-ousia-luke-large_luke-eval-data-v2_context-size-6_tagged-entities_none_class_balanced_ml-512_lr-0.00_bs-16_ep-4 # from the cloud "studio-ousia/luke-large-finetuned-tacred"
   from_local: True
-  prune_mode: random # random, ...
+  prune_mode: most_common # random, most_common, sorted
   max_seq_length: 512
   tag_entities: True
+
+# Postprocessing
+post_processing:
+  remove_impermissible_relations: False
+  
+
 
 nlp:
   type: spacy
@@ -62,4 +69,14 @@ models:
   path: ../data/resources/models/
 
 logger:
-  level: TRACE #  CRITICAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, TRACE  
+  level: DEBUG #  CRITICAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, TRACE  
+
+# Allowed relations - undirected
+allowed_relations:
+  - {type: "hasTrait", entity_1: "Arthropod", entity_2: "Trait"}
+  - {type: "hasValue", entity_1: "Trait", entity_2: "Value"}
+  - {type: "hasQualifier", entity_1: "Arthropod", entity_2: "Qualifier"}
+  - {type: "hasQualifier", entity_1: "Trait", entity_2: "Qualifier"}
+  - {type: "hasContinuation", entity_1: "Arthropod", entity_2: "Arthropod"}
+  - {type: "hasContinuation", entity_1: "Trait", entity_2: "Trait"}
+  - {type: "hasContinuation", entity_1: "Value", entity_2: "Value"}

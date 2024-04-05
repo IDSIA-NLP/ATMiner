@@ -5,6 +5,7 @@ Arthropods traits prediction pipeline.
 **Table of Content:**
 - [Arthropod-Trait-Miner](#arthropod-trait-miner)
   - [Setup](#setup)
+    - [Get the load file list](#get-the-load-file-list)
   - [Run](#run)
     - [Configuration](#configuration)
     - [Run](#run-1)
@@ -28,6 +29,22 @@ We use python 3.7 for this project.
 To install the required dependencies can use `pip install -r requirements.txt`
 
 Download the spacy web core with `python -m spacy download en_core_web_sm` and `python -m spacy download en_core_web_lg`
+
+### Get the load file list
+
+Navigate to the folder in which the files to be predicted are stored (e.g. `./data/tmp/pmx_txt_articles/`).
+
+Run the following script to get the load file list:  
+`du -s "$PWD/"** | sort -h |awk '{print $2}' >../load_file_lists/all_pmc_load_file_list_sorted_asc.txt`
+
+- `"$PWD/"**`: Gets the full file path  
+- `sort -h`: Sorts the files by size (asc)  
+- `awk '{print $2}'`: Prints only the file name
+
+And run the following to get a sanity check that the files are in the right order:  
+`du -s "$PWD/"** | sort -h |awk '{print $2  "\t" $1}' >../load_file_lists/sanity_check_all_pmc_load_file_list_sorted_asc.txt`
+
+(Now can specify the load_file_list in the config file)
 
 ## Run
 

@@ -194,6 +194,27 @@ class ATMiner(object):
             raise ValueError("Document type is not supported.")
 
     # ---------------------------------- Relation Ext. Pipeline ------------------------------
+    def _custom_mode(self, series):
+        """Custom mode function. Return the mode according to a defined order.
+
+        Args:
+            series (pandas.Series): The series.
+
+        Returns:
+            str: The mode.
+        """
+        mode_counts = series.value_counts()
+        max_count = mode_counts.max()
+        # Filter modes that have the max count
+        potential_modes = mode_counts[mode_counts == max_count].index.tolist()
+        # Define the order
+        order = ['hasTrait', 'hasValue', 'hasQualifier', 'hasContinuation', 'none']
+        # Return the first according to the defined order
+        for o in order:
+            if o in potential_modes:
+                return o
+        return series.mode()[0]  # Fallback, should never be reached due to the order list covering all cases
+
     def _drop_relation_duplicates(self, pred_relations , mode="random"):
         """Drop duplicate relations.
 
@@ -233,6 +254,21 @@ class ATMiner(object):
             with open(f"../logs/debugging/{datetime.today().strftime('%Y-%m-%d-%H-%M-%S-%f')}_pruned_relations.json", "w") as f:
                 json.dump(pruned_relations, f)
             self.logger.debug(f"pruned {pruned_relations}")
+
+        # Keep the type that was predicted the most times for each pair of entities
+        elif mode == "most_common":
+            df = pd.DataFrame(pred_relations)
+            # Get the most common type for each pair of head-tail entities, if there are multiple types with the same count keep first of order list
+            df['most_common_type'] = df.groupby(['head_id', 'tail_id'])['type'].transform(self._custom_mode)
+            # Drop duplicates
+            df.drop('type', axis=1)
+            # Rename the most_common_type to type
+            df.rename(columns={'most_common_type': 'type'})
+            # Drop duplicates, where head_id, tail_id and type are the same
+            # df = df.drop_duplicates(subset=['head_id', 'tail_id', 'type']) # Why include type here?
+            df.drop_duplicates(subset=['head_id', 'tail_id'], inplace=True)
+            pruned_relations = df.to_dict("records")
+           
             
         else:
             self.logger.error(f"Removing duplicates mode ({mode}) is not supported.")
@@ -407,12 +443,15 @@ class ATMiner(object):
                 #! Debugging REMOVE !!! >>>>>
                 file_path = f'{output_path}{self.config["input"]["file"]}--size-{self.config["context"]["size"]}.{self.config["output"]["extension"]}'
                 #! <<<<<<<<<<<<<<<<<<<<<<<<<
-            elif self.config["input"]["type"] == "multiple":
+            elif self.config["input"]["type"] in ["multiple", "load_list"]:
                 input_file_name = ".".join(input_file_path.split("/")[-1].split(".")[:-1])
                 file_path = f'{output_path}{input_file_name}.{self.config["output"]["extension"]}'
             else:
                 self.logger.error("Input type not supported.")
                 raise ValueError("Input type not supported.")
+
+            # if not os.path.exists(file_path):
+            #     os.makedirs(file_path)
 
             if self.config["output"]["format"] == "bioc_json":
                 with open(file_path, 'w', encoding='utf8') as f:
@@ -433,6 +472,51 @@ class ATMiner(object):
 
         self.logger.info(f"Wrote output document to file: {file_path}")
 
+
+    def _remove_impermissible_relations(self):
+        """Remove impermissible relations.
+
+        Args:
+            relations (list): The relations.
+
+        Returns:
+            list: The relations.
+        """        
+        # Remove relations that are not in the allowed relation types
+        raise NotImplementedError("Not implemented yet.")
+        allowed_relation = self.config['allowed_relations']
+        allowed_relation #! TODO: Reformate allowed_relation
+        if self.doc_type == "collection":
+            for document in self.doc:
+                #! TODO: Change the iteration method
+                for relation in document.relations:
+                    if relation.metadata["type"] not in allowed_relation:
+                        #! TODO: Change the remove method
+                        document.relations.remove(relation)
+                
+        elif self.doc_type == "document":
+            #! TODO: Change the iteration method
+            for relation in self.doc.relations:
+                if relation.metadata["type"] not in allowed_relation:
+                    #! TODO: Change the remove method
+                    document.relations.remove(relation)
+
+        else:
+            self.logger.error("Document type is not supported.")
+            raise ValueError("Document type is not supported.")
+        return self.doc
+    
+
+    def post_processing(self):
+        """Run the post processing pipeline.
+        """
+        if self.config['post_processing']['remove_impermissible_relations']:
+            self.logger.info("Post-processing: Removing impermissible relations...")
+            self.doc = self._remove_impermissible_relations()
+        else:
+            self.logger.info("No post processing applied.")
+
+
     def write_config(self):
         # Create the output path /output_path/run-id/
         output_path = f'{self.config["output"]["path"]}run-{self.run_id}/'
@@ -451,9 +535,20 @@ class ATMiner(object):
         if self.config["input"]["type"] == "single":
             self.logger.info("Loading single document path.")
             input_file_paths = [f'{self.config["input"]["path"]}{self.config["input"]["file"]}.{self.config["input"]["extension"]}']
+        
         elif self.config["input"]["type"] == "multiple":
             self.logger.info("Loading multiple document paths.")
             input_file_paths =  glob.glob(f'{self.config["input"]["path"]}*')
+        
+        elif self.config["input"]["type"] == "load_list":
+            self.logger.info("Loading document paths from list.")
+            with open(f'{self.config["input"]["load_list"]}', 'r') as f:
+                input_file_paths = f.readlines()
+                # Clean and check the paths
+            input_file_paths = [p.strip() for p in input_file_paths if p.strip()]
+            # Get first 1 path
+            self.logger.debug(f"Number of input files: {len(input_file_paths)}")
+            self.logger.debug(f"First input file: {input_file_paths[0]}")
         else:
             self.logger.error("Input type not supported.")
             raise ValueError("Input type not supported.")
@@ -472,7 +567,11 @@ class ATMiner(object):
 
             # Run the relation extraction
             self.logger.info(f"Start relation extraction.")
-            self.relation_extraction()      
+            self.relation_extraction()     
+
+            # Run post processing
+            self.logger.info(f"Start post processing.")
+            self.post_processing() 
             
             # Write the output 
             self.logger.info(f"Writing output to file.")
@@ -667,12 +766,27 @@ class ATMiner(object):
         
         re_report = "***** Relation Ext. Report *****"
         re_report += f"\n Labels: {labels}"
-        cls_report_zero_div_one = sklearn_cls_report(re_gold_labels, re_pred_labels, labels=labels, zero_division=1)
-        re_report += f"\n Relation Ext. (zero_division=1):\n\n{cls_report_zero_div_one}"
-        cls_report_zero_div_zero = sklearn_cls_report(re_gold_labels, re_pred_labels, labels=labels, zero_division=0)
-        re_report += f"\n Relation Ext. (zero_division=0, labels={labels}):\n\n{cls_report_zero_div_zero}"
-        cls_report_zero_div_zero = sklearn_cls_report(re_gold_labels, re_pred_labels, zero_division=0)
-        re_report += f"\n Relation Ext. (zero_division=0, label=undefined):\n\n{cls_report_zero_div_zero}"
+        try:
+            cls_report_zero_div_one = sklearn_cls_report(re_gold_labels, re_pred_labels, labels=labels, zero_division=1)
+            re_report += f"\n Relation Ext. (zero_division=1):\n\n{cls_report_zero_div_one}"
+        except:
+            self.logger.error("No report available for zero_division=1.")
+            re_report += f"\n Relation Ext. (zero_division=1):\n\nNo report available."
+
+        try:
+            cls_report_zero_div_zero = sklearn_cls_report(re_gold_labels, re_pred_labels, labels=labels, zero_division=0)
+            re_report += f"\n Relation Ext. (zero_division=0, labels={labels}):\n\n{cls_report_zero_div_zero}"
+        except:
+            self.logger.error("No report available for zero_division=0, labels=labels.")
+            re_report += f"\n Relation Ext. (zero_division=0, labels={labels}):\n\nNo report available."
+
+        try:
+            cls_report_zero_div_zero = sklearn_cls_report(re_gold_labels, re_pred_labels, zero_division=0)
+            re_report += f"\n Relation Ext. (zero_division=0, label=undefined):\n\n{cls_report_zero_div_zero}"
+        except:
+            self.logger.error("No report available for zero_division=0, label=undefined.")
+            re_report += f"\n Relation Ext. (zero_division=0, label=undefined):\n\nNo report available."
+
         self.logger.debug(f"Len gold labels: {len(re_gold_labels)}")        
         self.logger.debug(re_report)
 
@@ -826,9 +940,20 @@ class ATMiner(object):
         if self.config["input"]["type"] == "single":
             self.logger.info("Loading single document path.")
             input_file_paths = [f'{self.config["input"]["path"]}{self.config["input"]["file"]}.{self.config["input"]["extension"]}']
+        
         elif self.config["input"]["type"] == "multiple":
             self.logger.info("Loading multiple document paths.")
             input_file_paths =  glob.glob(f'{self.config["input"]["path"]}*/*')
+        
+        elif self.config["input"]["type"] == "load_list":
+            self.logger.info("Loading document paths from list.")
+            with open(f'{self.config["input"]["load_list"]}', 'r') as f:
+                input_file_paths = f.readlines()
+                # Clean and check the paths
+            input_file_paths = [p.strip() for p in input_file_paths if p.strip()]
+            # Get first 1 path
+            self.logger.debug(f"Number of input files: {len(input_file_paths)}")
+            self.logger.debug(f"First input file: {input_file_paths[0]}")
         else:
             self.logger.error("Input type not supported.")
             raise ValueError("Input type not supported.")

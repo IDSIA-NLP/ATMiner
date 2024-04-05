@@ -101,7 +101,7 @@ def create_and_save_bar_plot(data, entity_type, output_path):
     data_sorted_top50 = dict(list(data_sorted.items())[0:50])
     plt.bar(data_sorted_top50.keys(), data_sorted_top50.values())
     plt.xticks(rotation=90)
-    plt.savefig(f"{output_path}name_variety_per_type_and_native_id_{entity_type}.png")
+    plt.savefig(f"{output_path}plot/name_variety_per_type_and_native_id_{entity_type}.png")
     plt.close()
 
 
@@ -343,7 +343,7 @@ def write_frequency_counts(df_entities, output_path):
         df_entities_type["text"].value_counts().to_frame().join(df_entities_type["text"].value_counts(normalize=True).to_frame(), lsuffix='_count', rsuffix='_percent').to_csv(f"{output_path}counts_{entity_type}.csv")
 
 
-def calculate_percentage(df_entities, termlist, entity_type, termlist_name):
+def calculate_percentage(df_entities, termlist, entity_type, termlist_name, output_path):
         """
         Calculate the percentage of termlist found.
 
@@ -358,11 +358,40 @@ def calculate_percentage(df_entities, termlist, entity_type, termlist_name):
         """
         unique_termlist_original_ids = termlist["original_id"].unique()
         termlist_found = df_entities[(df_entities["type"] == entity_type) & (df_entities["native_id"].isin(unique_termlist_original_ids))]
+
         
         # Just log the percentage
         percent_termlist_found = len(termlist_found["native_id"].unique()) / len(unique_termlist_original_ids)
         logger.debug(f'Percent of {termlist_name} termlist that is found entities with type "{entity_type}": {percent_termlist_found}')
+
+        # Write distribution of found entities to file
+        termlist_found['text'].value_counts().to_csv(f"{output_path}{termlist_name}_termlist_found_text_distribution.csv")
+         # Bar from the distribution
+        termlist_found['text'].value_counts().head(50).plot(kind='bar' ,
+                                                    title=f"Distribution of found entities in {termlist_name}_termlist_found",
+                                                ).get_figure().savefig(
+                                                    f"{output_path}plot/{termlist_name}_termlist_found_text_distribution.png", 
+                                                    bbox_inches='tight'
+                                                )
+        
         return unique_termlist_original_ids,  termlist_found
+
+
+
+def get_trait_termlists():
+    """
+    Get the trait termlists.
+
+    Returns:
+        tuple: The feeding, habitat and morphology termlists.
+    """
+
+    traits_feeding_termlist = pd.read_csv("../data/resources/termlists/traits_feeding.normalized.tsv", sep="\t")
+    traits_habitat_termlist = pd.read_csv("../data/resources/termlists/traits_habitat.normalized.tsv", sep="\t")
+    traits_morphology_termlist = pd.read_csv("../data/resources/termlists/traits_morphology.normalized.tsv", sep="\t")
+    return traits_feeding_termlist,traits_habitat_termlist,traits_morphology_termlist
+    
+
 
 
 def generate_entities_with_concept_id_plot(df_entities, 
@@ -527,21 +556,37 @@ def assess_entity_normalization(predicted_output_path="../data/tmp/output_test/r
     for entity_type in df_entities["type"].unique():
         create_and_save_bar_plot(native_id_entity_type_counts[entity_type], entity_type, output_path)
 
+    
+
     # -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  
     # Compare entities with termlists 
         
     # Load orignal termlists
     arthropod_termlist = pd.read_csv("../data/resources/termlists/col_arthropods.tsv", sep="\t")
-    traits_feeding_termlist = pd.read_csv("../data/resources/termlists/traits_feeding.normalized.tsv", sep="\t")
-    traits_habitat_termlist = pd.read_csv("../data/resources/termlists/traits_habitat.normalized.tsv", sep="\t")
-    traits_morphology_termlist = pd.read_csv("../data/resources/termlists/traits_morphology.normalized.tsv", sep="\t")
+
+    traits_feeding_termlist, traits_habitat_termlist, traits_morphology_termlist = get_trait_termlists()
 
     # Calculate percentage of termlist found
-    unique_arthropod_termlist_original_ids, arthropod_termlist_found = calculate_percentage(df_entities, arthropod_termlist, "Arthropod", "Arthropod")
-    unique_traits_feeding_termlist_original_ids, traits_feeding_termlist_found = calculate_percentage(df_entities, traits_feeding_termlist, "Trait", "Feeding")
-    unique_traits_habitat_termlist_original_ids, traits_habitat_termlist_found = calculate_percentage(df_entities, traits_habitat_termlist, "Trait", "Habitat")
-    unique_traits_morphology_termlist_original_ids, traits_morphology_termlist_found = calculate_percentage(df_entities, traits_morphology_termlist, "Trait", "Morphology")
+    unique_arthropod_termlist_original_ids, arthropod_termlist_found = calculate_percentage(df_entities, arthropod_termlist, "Arthropod", "Arthropod", output_path)
+    unique_traits_feeding_termlist_original_ids, traits_feeding_termlist_found = calculate_percentage(df_entities, traits_feeding_termlist, "Trait", "Feeding", output_path)
+    unique_traits_habitat_termlist_original_ids, traits_habitat_termlist_found = calculate_percentage(df_entities, traits_habitat_termlist, "Trait", "Habitat", output_path)
+    unique_traits_morphology_termlist_original_ids, traits_morphology_termlist_found = calculate_percentage(df_entities, traits_morphology_termlist, "Trait", "Morphology", output_path)
    
+    # Distribution of traits that are not found
+    logger.debug(f'Distribution of traits that are not found ...')
+    not_found_traits_entities = df_entities[~df_entities["native_id"].isin(traits_feeding_termlist_found["native_id"])]
+    not_found_traits_entities = not_found_traits_entities[~not_found_traits_entities["native_id"].isin(traits_habitat_termlist_found["native_id"])]
+    not_found_traits_entities = not_found_traits_entities[~not_found_traits_entities["native_id"].isin(traits_morphology_termlist_found["native_id"])]
+    not_found_traits_entities["text"].value_counts().to_csv(f"{output_path}not_found_traits_entities_text_distribution.csv")
+    not_found_traits_entities["text"].value_counts().head(50).plot(kind='bar' , title="Distribution of traits that are not found").get_figure().savefig(f"{output_path}plot/not_found_traits_entities_text_distribution.png", bbox_inches='tight')
+
+
+    # logger.debug(f'Termlist found traits_habitat_termlist_found: {traits_habitat_termlist_found}')
+    # # Write distribution of found entities to file
+    # traits_habitat_termlist_found['text'].value_counts().to_csv(f"{output_path}traits_habitat_termlist_found_text_distribution.csv")
+    # # Bar from the distribution
+    # traits_habitat_termlist_found['text'].value_counts().plot(kind='bar' , title="Distribution of found entities in traits_habitat_termlist_found").get_figure().savefig(f"{output_path}plot/traits_habitat_termlist_found_text_distribution.png", bbox_inches='tight')
+
     # Plotting termlist found vs original
     logger.debug(f'Plotting termlist found vs original')
     generate_percentage_of_termlist_entities_plot(output_path, 
@@ -563,7 +608,7 @@ def assess_entity_normalization(predicted_output_path="../data/tmp/output_test/r
                       traits_feeding_termlist_found, 
                       traits_habitat_termlist_found, 
                       traits_morphology_termlist_found)
-    
+
 
 
 def assess_relationship_identification_in_eol_taxon_traits(predicted_output_path = "../data/tmp/output_test/run-20230517-190035054078/", eol_trait_arthro_relation_path = "../data/resources/eol_relations/traits_arthro_relationship.tsv", arthro_col_to_eol_path = "../data/resources/eol_relations/Taxon_arthro_eol_sm.tsv", output_dir = "../data/assessments/"):
@@ -647,6 +692,19 @@ def assess_relationship_identification_in_eol_taxon_traits(predicted_output_path
     logger.debug(f'Number of unique EOL trait ids: {len(eol_trait_ids)}')
     eol_relation_assessment_report["number_of_unique_eol_trait_ids_in_eol_rel"] = len(eol_trait_ids)
 
+    # Number EOL traits in traits termlists
+    traits_feeding_termlist, traits_habitat_termlist, traits_morphology_termlist = get_trait_termlists()
+    eol_traits_in_traits_termlists = len(set(eol_trait_ids).intersection(traits_feeding_termlist["original_id"]))
+    logger.debug(f'Number of EOL traits in feeding termlist: {eol_traits_in_traits_termlists}')
+    eol_relation_assessment_report["number_of_eol_traits_in_feeding_termlist"] = eol_traits_in_traits_termlists
+    eol_traits_in_traits_termlists = len(set(eol_trait_ids).intersection(traits_habitat_termlist["original_id"]))
+    logger.debug(f'Number of EOL traits in habitat termlist: {eol_traits_in_traits_termlists}')
+    eol_relation_assessment_report["number_of_eol_traits_in_habitat_termlist"] = eol_traits_in_traits_termlists
+    eol_traits_in_traits_termlists = len(set(eol_trait_ids).intersection(traits_morphology_termlist["original_id"]))
+    logger.debug(f'Number of EOL traits in morphology termlist: {eol_traits_in_traits_termlists}')
+    eol_relation_assessment_report["number_of_eol_traits_in_morphology_termlist"] = eol_traits_in_traits_termlists
+    
+
     # Number of unique EOL arthropod page ids
     eol_arthropod_page_ids = df_eol_trait_arthro_relation["page_id"].unique()
     logger.debug(f'Number of unique EOL arthropod page ids: {len(eol_arthropod_page_ids)}')
@@ -723,9 +781,9 @@ def assess_relationship_identification_in_eol_taxon_traits(predicted_output_path
             # Check if arthropod is found in EOL
             arthropod_eol_id = col_to_eol_id.get(row["member_2_native_id"], None)
             if arthropod_eol_id:
-                logger.debug(f'Arthropod found in EOL: {row["member_2_native_id"]}, {col_to_eol_id[row["member_2_native_id"]]}')
-                # log data type
-                logger.debug(f'Data type of arthropod_eol_id: {type(col_to_eol_id[row["member_2_native_id"]])}')
+                # logger.debug(f'Arthropod found in EOL: {row["member_2_native_id"]}, {col_to_eol_id[row["member_2_native_id"]]}')
+                # # log data type
+                # logger.debug(f'Data type of arthropod_eol_id: {type(col_to_eol_id[row["member_2_native_id"]])}')
                 try: 
                     # There problems with a nan value in the keys od col_to_eol_id
                     for member_2_native_id_as_eol_page_id in col_to_eol_id[row["member_2_native_id"]].split("|"):
@@ -758,10 +816,10 @@ def main(logger):
     logger.info(f'Start assessments ...')
 
     # Assessing Entity Normalization with the Taxon and Trait Dictionaries
-    # assess_entity_normalization()
+    assess_entity_normalization()
 
     # Assessing Relationship Identification with the Encyclopedia of Life Taxon Traits
-    assess_relationship_identification_in_eol_taxon_traits()
+    # assess_relationship_identification_in_eol_taxon_traits()
     
 # --------------------------------------------------------------------------------------------
 #                                          RUN
