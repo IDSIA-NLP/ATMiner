@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --time=1-12:00:00  # 2 days 12 hour of wall time
+#SBATCH --time=14-00:00:00  # 2 days 12 hour of wall time
 #SBATCH --nodes=1        # 1 GPU node
 #SBATCH --partition=gpu # GPU partition
 #SBATCH --ntasks=1       # 1 CPU core to drive GPU

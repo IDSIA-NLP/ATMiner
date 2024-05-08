@@ -12,7 +12,6 @@ Month Year
 
 from loguru import logger
 import numpy as np
-import spacy
 import json
 import time
 import pandas as pd
@@ -25,6 +24,7 @@ import matplotlib.pyplot as plt
 from atminer.config import Config
 from atminer.atminer import ATMiner
 
+import argparse
 
 import glob
 import bconv
@@ -319,7 +319,9 @@ def write_entity_native_id_report(df_entities, output_path):
         native_id_report[entity_type] = {
             f"percent_non_termlist_{entity_type}": percent_non_termlist_entity_type,
             f"count_non_termlist_{entity_type}": len(non_termlist_entity_type),
-            f"count_{entity_type}": len(df_entities[df_entities["type"] == entity_type])
+            f"count_termlist_{entity_type}": len(df_entities[df_entities["type"] == entity_type]) - len(non_termlist_entity_type),
+            f"count_{entity_type}": len(df_entities[df_entities["type"] == entity_type]),
+            f"count_of_unique_{entity_type}": df_entities[df_entities["type"] == entity_type]["text"].nunique(),
         }
 
     # Write native_id_report to file
@@ -519,6 +521,7 @@ def assess_entity_normalization(predicted_output_path="../data/tmp/output_test/r
     logger.info(f'Assessing Entity Normalization with the Taxon and Trait Dictionaries ...')
 
 
+
     # Use pathlib.Path to iterate over the files
     run_id = predicted_output_path.split("/")[-2]
     output_files = load_output_files(predicted_output_path)
@@ -571,7 +574,7 @@ def assess_entity_normalization(predicted_output_path="../data/tmp/output_test/r
     unique_traits_feeding_termlist_original_ids, traits_feeding_termlist_found = calculate_percentage(df_entities, traits_feeding_termlist, "Trait", "Feeding", output_path)
     unique_traits_habitat_termlist_original_ids, traits_habitat_termlist_found = calculate_percentage(df_entities, traits_habitat_termlist, "Trait", "Habitat", output_path)
     unique_traits_morphology_termlist_original_ids, traits_morphology_termlist_found = calculate_percentage(df_entities, traits_morphology_termlist, "Trait", "Morphology", output_path)
-   
+    
     # Distribution of traits that are not found
     logger.debug(f'Distribution of traits that are not found ...')
     not_found_traits_entities = df_entities[~df_entities["native_id"].isin(traits_feeding_termlist_found["native_id"])]
@@ -586,6 +589,9 @@ def assess_entity_normalization(predicted_output_path="../data/tmp/output_test/r
     # traits_habitat_termlist_found['text'].value_counts().to_csv(f"{output_path}traits_habitat_termlist_found_text_distribution.csv")
     # # Bar from the distribution
     # traits_habitat_termlist_found['text'].value_counts().plot(kind='bar' , title="Distribution of found entities in traits_habitat_termlist_found").get_figure().savefig(f"{output_path}plot/traits_habitat_termlist_found_text_distribution.png", bbox_inches='tight')
+
+    # As a precaution, close plt before generating new plots
+    plt.close()
 
     # Plotting termlist found vs original
     logger.debug(f'Plotting termlist found vs original')
@@ -608,6 +614,197 @@ def assess_entity_normalization(predicted_output_path="../data/tmp/output_test/r
                       traits_feeding_termlist_found, 
                       traits_habitat_termlist_found, 
                       traits_morphology_termlist_found)
+
+
+
+def load_col_data(col_path="../data/resources/col/Taxon_arthro_eol_wikidata_sm.tsv"):
+    """
+    Load the COL data.
+
+    Args:
+        col_path (str): The path to the COL data.
+
+    Returns:
+        pd.DataFrame: The COL data.
+    """
+    df_col_arthro = pd.read_csv(col_path, sep="\t")
+
+    logger.debug(f'Loaded COL data: {df_col_arthro.columns}')
+    logger.debug(f'Loaded COL data: {df_col_arthro.head(3)}')
+
+    return df_col_arthro
+    
+
+
+
+def general_assessment(predicted_output_path="../data/tmp/output_test/run-20230517-190035054078/", output_dir="../data/assessments/"):
+    """
+    General assessment of the predicted output documents.
+
+    Args:
+        predicted_output_path (str): The path to the directory containing the predicted output documents.
+        output_dir (str): The path to the directory where the output should be saved.
+
+    Returns:
+        None
+    """
+    # Use pathlib.Path to iterate over the files
+    run_id = predicted_output_path.split("/")[-2]
+    output_files = load_output_files(predicted_output_path)
+
+    logger.info(f'Loaded {len(output_files)} output files')
+
+    # Create output path if not exists
+    output_path = create_output_path(output_dir, run_id)
+
+    general_report = {}
+
+    # Load all entities from predicted output documents
+    df_entities = create_dataframe_from_entities(output_files)
+
+    # Log some information about the entities
+    logger.debug(f'DF_Entities: Loaded {len(df_entities)} entities')
+    logger.debug(f'DF_Entities: Columns: {df_entities.columns}')
+    logger.debug(f'DF_Entities: Head: {df_entities.head()}')
+    logger.debug(f'DF_Entities: Most frequent entities (top 10)')
+    logger.debug(f'{df_entities["text"].value_counts().head(10)}')
+
+    entity_id_to_native_id = df_entities.set_index("id")["native_id"].to_dict()
+
+    # Load all relations from predicted output documents
+    df_relations = load_dataframe_from_relations(output_files, entity_id_to_native_id)
+   
+    # Total number of entities
+    general_report["number_of_all_entities"] = len(df_entities)
+    # Total number of unique entities
+    general_report["number_of_unique_entities"] = df_entities["text"].nunique()
+    # Total number of entities with native_id
+    general_report["number_of_entities_with_native_id"] = len(df_entities.dropna(subset=["native_id"]))
+    # Total number of entities without native_id
+    general_report["number_of_entities_without_native_id"] = len(df_entities) - len(df_entities.dropna(subset=["native_id"]))
+    # Total number of relations
+    general_report["number_of_relations"] = len(df_relations)
+    # Total number of unique relations
+    general_report["number_of_unique_relations"] = df_relations["id"].nunique()
+    # Number of not none relations
+    general_report["number_of_not_none_relations"] = len(df_relations[df_relations["type"].str.lower() != "none"])
+    # Number of unique not none relations
+    general_report["number_of_unique_not_none_relations"] = df_relations[df_relations["type"].str.lower() != "none"]["id"].nunique()
+    # Total number of none relations
+    general_report["number_of_none_relations"] = len(df_relations[df_relations["type"].str.lower() == "none"])
+    # Total number of hasTrait relations
+    general_report["number_of_hasTrait_relations"] = len(df_relations[df_relations["type"] == "hasTrait"])
+    # Total number of hasValue relations
+    general_report["number_of_hasValue_relations"] = len(df_relations[df_relations["type"] == "hasValue"])
+    
+
+    # Trait frequence by type
+    traits_feeding_termlist, traits_habitat_termlist, traits_morphology_termlist = get_trait_termlists()
+
+    # Add subtypes (feeding, habitat, morphological) to trait entities
+    df_entities_traits = df_entities[df_entities["type"] == "Trait"]
+    general_report["number_of_trait_entities"] = len(df_entities_traits)
+    general_report["number_of_unique_trait_entities"] = df_entities_traits["text"].nunique()
+    general_report["number_of_trait_entities_without_native_id"] = len(df_entities_traits) - len(df_entities_traits.dropna(subset=["native_id"]))
+    general_report["number_of_trait_entities_with_native_id"] = len(df_entities_traits.dropna(subset=["native_id"]))
+    df_entities_traits['subtype'] = np.nan
+    df_entities_traits.loc[df_entities_traits["native_id"].isin(traits_feeding_termlist["original_id"]), 'subtype'] = "Feeding"
+    df_entities_traits.loc[df_entities_traits["native_id"].isin(traits_habitat_termlist["original_id"]), 'subtype'] = "Habitat"
+    df_entities_traits.loc[df_entities_traits["native_id"].isin(traits_morphology_termlist["original_id"]), 'subtype'] = "Morphology"
+
+    # Examples of top 5 most frequent trait entities with no native_id
+    trait_entities_no_native_id = df_entities_traits[df_entities_traits["native_id"].isna()]
+    trait_entities_no_native_id_examples = trait_entities_no_native_id["text"].value_counts().head(5).to_dict()
+    general_report["trait_entities_no_native_id_examples"] = trait_entities_no_native_id_examples
+
+    # Examples of top 5 most frequent trait entities with native_id for each subtype
+    trait_entities_with_native_id = df_entities_traits.dropna(subset=["native_id"])
+    trait_entities_with_native_id_examples = {}
+    for subtype in ["Feeding", "Habitat", "Morphology"]:
+        trait_entities_with_native_id_examples[subtype] = trait_entities_with_native_id[trait_entities_with_native_id["subtype"] == subtype]["text"].value_counts().head(5).to_dict()
+    general_report["trait_entities_with_native_id_examples"] = trait_entities_with_native_id_examples
+
+    # Trait count by type
+    trait_count_by_type = df_entities_traits["subtype"].value_counts().to_dict()
+    general_report["trait_count_by_type"] = trait_count_by_type
+
+
+    # Avg document length
+    total_document_length = 0
+    for filename, element in output_files.items():
+        if isinstance(element, bconv.doc.document.Collection):
+            doc = element[0]     
+        elif isinstance(element, bconv.doc.document.Document):
+            doc = element
+        else:
+            raise TypeError("Document type not supported")
+        
+        total_document_length += len(doc.text)
+
+    general_report["avg_document_length"] = total_document_length / len(output_files)
+    
+    # -------------------------------- TAXON RANK ASSESSMENT --------------------------------
+    # Amount of subspecies, species, genus, family, order, class, phylum, kingdom in arthopods
+    df_col_arthro = load_col_data()
+    df_entities_arthro = df_entities[df_entities["type"] == "Arthropod"]
+
+    general_report["number_of_arthropod_entities"] = len(df_entities_arthro)
+    general_report["number_of_unique_arthropod_entities"] = df_entities_arthro["text"].nunique()
+    general_report["number_of_arthropod_entities_without_native_id"] = len(df_entities_arthro) - len(df_entities_arthro.dropna(subset=["native_id"]))
+    general_report["number_of_arthropod_entities_with_native_id"] = len(df_entities_arthro.dropna(subset=["native_id"]))
+
+    # add the taxon rank df_entities dataframe
+    df_entities_arthro = df_entities_arthro.merge(df_col_arthro, left_on="native_id", right_on="dwc:taxonID", how="left")
+    logger.debug(f'Merged COL and arthro entities: {df_entities_arthro.columns}')
+    logger.debug(f'Merged COL and arthro entities: {df_entities_arthro.head()}')
+    logger.debug(f'Merged COL and arthro entities: {df_entities_arthro["dwc:taxonRank"].value_counts()}')
+
+    # Get taxon rank distribution
+    taxon_rank_counts = df_entities_arthro["dwc:taxonRank"].value_counts().to_dict()
+    logger.debug(f'Taxon rank counts: {taxon_rank_counts}')
+    general_report["taxon_rank_counts"] = taxon_rank_counts
+    # Get the taxon rank counts for deduplicated arthropods
+    df_entities_arthro_dedup = df_entities_arthro.drop_duplicates(subset=["native_id"])
+    taxon_rank_counts_dedup = df_entities_arthro_dedup["dwc:taxonRank"].value_counts().to_dict()
+    logger.debug(f'Taxon rank counts dedup: {taxon_rank_counts_dedup}')
+    general_report["taxon_rank_counts_dedup"] = taxon_rank_counts_dedup
+   
+    # Get top 5 text example for each most frequent taxon rank
+    taxon_rank_examples = {}
+    for taxon_rank in taxon_rank_counts.keys():
+        taxon_rank_examples[taxon_rank] = df_entities_arthro[df_entities_arthro["dwc:taxonRank"] == taxon_rank]["text"].value_counts().head(5).to_dict()
+    logger.debug(f'Taxon rank examples: {taxon_rank_examples}')
+    general_report["taxon_rank_examples"] = taxon_rank_examples
+
+    # Top 5 text examples arthropods with no native_id
+    arthropods_no_native_id = df_entities_arthro[df_entities_arthro["dwc:taxonID"].isna()]
+    arthropods_no_native_id_examples = arthropods_no_native_id["text"].value_counts().head(5).to_dict()
+    logger.debug(f'Arthropods no native_id examples: {arthropods_no_native_id_examples}')
+    general_report["arthropods_no_native_id_examples"] = arthropods_no_native_id_examples
+
+
+    # Value entities count 
+    value_entities = df_entities[df_entities["type"] == "Value"]
+    general_report["number_of_value_entities"] = len(value_entities)
+    general_report["number_of_unique_value_entities"] = value_entities["text"].nunique()
+    general_report["number_of_value_entities_without_native_id"] = len(value_entities) - len(value_entities.dropna(subset=["native_id"]))
+    general_report["number_of_value_entities_with_native_id"] = len(value_entities.dropna(subset=["native_id"]))
+
+    # Top 5 text examples value entities with no native_id
+    value_entities_no_native_id = value_entities[value_entities["native_id"].isna()]
+    value_entities_no_native_id_examples = value_entities_no_native_id["text"].value_counts().head(5).to_dict()
+    general_report["value_entities_no_native_id_examples"] = value_entities_no_native_id_examples
+
+    # Top 5 text examples value entities with native_id
+    value_entities_with_native_id = value_entities.dropna(subset=["native_id"])
+    value_entities_with_native_id_examples = value_entities_with_native_id["text"].value_counts().head(5).to_dict()
+    general_report["value_entities_with_native_id_examples"] = value_entities_with_native_id_examples
+    
+
+    # Write general report to file
+    write_to_json(f"{output_path}general_report.json", general_report)
+
+
 
 
 
@@ -803,7 +1000,7 @@ def assess_relationship_identification_in_eol_taxon_traits(predicted_output_path
 
 
     
-def main(logger):
+def main(logger, args):
     """ Get the configuration and run the ATMiner pipeline.
 
     Args:
@@ -815,8 +1012,11 @@ def main(logger):
 
     logger.info(f'Start assessments ...')
 
+    # General assessment
+    general_assessment(predicted_output_path=args.predicted_output_path)
+
     # Assessing Entity Normalization with the Taxon and Trait Dictionaries
-    assess_entity_normalization()
+    #assess_entity_normalization(predicted_output_path=args.predicted_output_path)
 
     # Assessing Relationship Identification with the Encyclopedia of Life Taxon Traits
     # assess_relationship_identification_in_eol_taxon_traits()
@@ -831,11 +1031,20 @@ if __name__ == '__main__':
     logger.add("../logs/assessment.log", rotation="1 MB", level=_config()["logger"]["level"])
     logger.info(f'Start ...')
 
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Run the assessment')
+    parser.add_argument('--predicted_output_path', metavar="predicted_output_path", type=str, 
+                        default="../data/final/output_all_pmc-first_2000/run-20240405-181431823445/",
+                        help='The path to the directory containing the predicted output documents.')
+    args = parser.parse_args()
+
+    logger.info(f'Arguments: {args}')
+
     # Time the execution
     start = time.time()
 
     # Run main
-    main(logger)
+    main(logger, args)
 
     # End timing and log in minutes
     end = time.time()
