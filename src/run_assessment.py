@@ -394,7 +394,22 @@ def get_trait_termlists():
     return traits_feeding_termlist,traits_habitat_termlist,traits_morphology_termlist
     
 
+def write_plot_data_to_file(data, filename, output_path, data_type):
+    """
+    Write plot data to file.
 
+    Args:
+        data (dict): The data to be written.
+        output_path (str): The path to the directory where the output should be saved.
+
+    Returns:
+        None
+    """
+    if data_type == "list":
+        with open(f"{output_path}{filename}.json", "w") as f:
+            json.dump(data, f, indent=4)
+    if data_type == "pd_dataframe":
+        data.to_csv(f"{output_path}{filename}.csv")
 
 def generate_entities_with_concept_id_plot(df_entities, 
                                            output_path, 
@@ -417,6 +432,13 @@ def generate_entities_with_concept_id_plot(df_entities,
     Returns:
         None
     """
+    # Save plot data.
+    write_plot_data_to_file(df_entities, "entities_with_concept_id-df_entities", output_path, "pd_dataframe")
+    write_plot_data_to_file(arthropod_termlist_found, "entities_with_concept_id-arthropod_termlist_found", output_path, "pd_dataframe")
+    write_plot_data_to_file(traits_feeding_termlist_found, "entities_with_concept_id-traits_feeding_termlist_found", output_path, "pd_dataframe")
+    write_plot_data_to_file(traits_habitat_termlist_found, "entities_with_concept_id-traits_habitat_termlist_found", output_path, "pd_dataframe")
+    write_plot_data_to_file(traits_morphology_termlist_found, "entities_with_concept_id-traits_morphology_termlist_found", output_path, "pd_dataframe")
+
     categories = ["Arthropod", "Feeding", "Habitat", "Morphology"]
 
     original_data = [
@@ -446,6 +468,8 @@ def generate_entities_with_concept_id_plot(df_entities,
     create_and_save_normalized_bar_plot(categories, original_data, found_data, original_labels, found_labels, "Entities with concept id vs all annotated entities", output_path)
 
 
+
+
 def generate_percentage_of_termlist_entities_plot(output_path, 
                                                   unique_arthropod_termlist_original_ids, 
                                                   arthropod_termlist_found, 
@@ -470,6 +494,18 @@ def generate_percentage_of_termlist_entities_plot(output_path,
     Returns:
         None
     """
+
+    # Save plot data.
+    write_plot_data_to_file(unique_arthropod_termlist_original_ids, "percentage_of_termlist_entities-unique_arthropod_termlist_original_ids", output_path, "list")
+    write_plot_data_to_file(arthropod_termlist_found, "percentage_of_termlist_entities-arthropod_termlist_found", output_path, "pd_dataframe")
+    write_plot_data_to_file(unique_traits_feeding_termlist_original_ids, "percentage_of_termlist_entities-unique_traits_feeding_termlist_original_ids", output_path, "list")
+    write_plot_data_to_file(traits_feeding_termlist_found, "percentage_of_termlist_entities-traits_feeding_termlist_found", output_path, "pd_dataframe")
+    write_plot_data_to_file(unique_traits_habitat_termlist_original_ids, "percentage_of_termlist_entities-unique_traits_habitat_termlist_original_ids", output_path, "list")
+    write_plot_data_to_file(traits_habitat_termlist_found, "percentage_of_termlist_entities-traits_habitat_termlist_found", output_path, "pd_dataframe")
+    write_plot_data_to_file(unique_traits_morphology_termlist_original_ids, "percentage_of_termlist_entities-unique_traits_morphology_termlist_original_ids", output_path, "list")
+    write_plot_data_to_file(traits_morphology_termlist_found, "percentage_of_termlist_entities-traits_morphology_termlist_found", output_path, "pd_dataframe")  
+    
+
     categories = ["Arthropod", "Feeding", "Habitat", "Morphology"]
 
     original_data = [
@@ -1013,10 +1049,10 @@ def main(logger, args):
     logger.info(f'Start assessments ...')
 
     # General assessment
-    general_assessment(predicted_output_path=args.predicted_output_path)
+    #general_assessment(predicted_output_path=args.predicted_output_path)
 
     # Assessing Entity Normalization with the Taxon and Trait Dictionaries
-    #assess_entity_normalization(predicted_output_path=args.predicted_output_path)
+    assess_entity_normalization(predicted_output_path=args.predicted_output_path)
 
     # Assessing Relationship Identification with the Encyclopedia of Life Taxon Traits
     # assess_relationship_identification_in_eol_taxon_traits()
