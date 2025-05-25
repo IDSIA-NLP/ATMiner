@@ -1,13 +1,16 @@
 input:
-  path: ../data/tmp/input_test_timing/ # the path to the input data
+  # path: ../data/tmp/input_test_timing/ # the path to the input data
+  path: ../data/tmp/harry_input/ # the path to the input data
   file: PMC4714060 # the name of the input file without the extension and the path
+  load_list: ../data/tmp/load_file_lists/all_pmc_load_file_list_sorted_asc.txt
   extension: txt # json, txt
   format: txt # bioc_json, txt
-  type: load_list # single, multiple, load_list (specify load list path in load_list field)
-  load_list: ../data/tmp/load_file_lists/all_pmc_load_file_list_sorted_asc.txt
+  type: multiple # single, multiple, load_list
+  
 
 output:
-  path: ../data/tmp/output_all_pmc/
+  # path: ../data/tmp/output_all_pmc/
+  path: ../data/tmp/harry_output/ # the path to the input data
   # file: PMC3082967 Use input file name instead
   extension: bioc.json
   format: bioc_json # bioc_json

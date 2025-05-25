@@ -1,6 +1,7 @@
 # ------------- MANUALLY ADDED --------------
 
 .vscode 
+.idea/
 
 # Ignore all data link
 data 
